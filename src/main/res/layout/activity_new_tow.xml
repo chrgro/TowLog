@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".NewTowActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Glider Registration"
+            android:id="@+id/gliderRegistrationTitle"
+            android:layout_marginTop="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+
+        <AutoCompleteTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/gliderRegistrationIn"
+            android:textSize="30dp"
+            android:text="LN-GCN"
+            android:layout_below="@+id/gliderRegistrationTitle"
+            android:layout_alignParentStart="true"
+            android:capitalize="words" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Pilot Name (billing)"
+            android:id="@+id/pilotNameTitle"
+            android:layout_below="@+id/gliderRegistrationIn"
+            android:layout_alignParentStart="true" />
+
+        <AutoCompleteTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/pilotNameIn"
+            android:textSize="30dp"
+            android:text="Jon Jørgensen"
+            android:layout_below="@+id/pilotNameTitle"
+            android:layout_alignParentStart="true"
+            android:capitalize="characters" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Co-pilot name (optional)"
+            android:id="@+id/coPilotNameTitle"
+            android:layout_below="@+id/pilotNameIn"
+            android:layout_alignParentStart="true" />
+
+        <AutoCompleteTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/coPilotNameIn"
+            android:textSize="30dp"
+            android:text=""
+            android:layout_below="@+id/coPilotNameTitle"
+            android:layout_alignParentStart="true"
+            android:capitalize="characters" />
+
+
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton android:id="@+id/startTowButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@color/white" />
+</RelativeLayout>
