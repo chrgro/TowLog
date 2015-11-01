@@ -2,9 +2,19 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#42ff40</color>
+    <color name="colorAccent">#24d222</color>
 
-    <color name="black_overlay">#66000000</color>
+    <color name="release_button">#f9dd10</color>
+    <color name="release_button_disabled">#FFE3E3E3</color>
+    <color name="abort_button">#df3333</color>
+    <color name="confirm_button">#3cba26</color>
+
+    <color name="resumeday_button">#24d222</color>
+
+    <color name="black_overlay">#ff000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background">#FFFFFFFF</color>
     <color name="green_add">#FF00FF00</color>
+
+    <color name="textColorPrimary">#333333</color>
 </resources>

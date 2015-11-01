@@ -1,0 +1,30 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Fiken.no API">
+        <EditTextPreference
+            android:inputType="text"
+            android:key="fiken_api_url"
+            android:maxLines="1"
+            android:defaultValue="https://fiken.no/api/v1/companies/&lt;companyname&gt;/contacts"
+            android:singleLine="true"
+            android:title="Fiken.no URL to Contact REST API "
+            android:summary="Full URL with protocol details. Default: https://fiken.no/api/v1/companies/&lt;companyname&gt;/contacts"/>
+
+        <EditTextPreference
+            android:inputType="text"
+            android:key="fiken_api_username"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Fiken.no API username (email)"
+            android:summary="Username used for authenticating against the REST API."/>
+
+        <EditTextPreference
+            android:inputType="textPassword"
+            android:key="fiken_api_password"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Fiken.no API password"
+            android:summary="Password used for authenticating against the REST API."/>
+    </PreferenceCategory>
+</PreferenceScreen>

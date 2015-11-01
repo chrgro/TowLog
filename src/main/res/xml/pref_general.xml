@@ -1,0 +1,53 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Plane Registrations"
+        android:key="pref_key_storage_settings">
+
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="LN-"
+            android:inputType="textCapCharacters"
+            android:key="towplane_default_reg"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Default towplane registration"
+            android:summary="Suggested at the beginning of a day. Default: LN-"/>
+
+
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="LN-G"
+            android:inputType="textCapCharacters"
+            android:key="glider_default_reg"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Default glider registration"
+            android:summary="Suggestion when starting a new tow. Default: LN-G"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Sending Logs"
+        android:key="pref_key_storage_settings">
+        <EditTextPreference
+            android:inputType="text"
+            android:key="send_log_email"
+            android:maxLines="1"
+            android:defaultValue=""
+            android:singleLine="true"
+            android:title="Email address to send log to" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="send_log_to_customers"
+            android:title="Send towlog to customers"
+            android:summary="If enabled, also send the log to all pilots and copilots if their email address is available. Default: false"/>
+    </PreferenceCategory>
+
+    <!-- This doesnt work...
+    <Preference android:title="Reset to default values"
+        android:key="pref_general_reset"
+        android:summary="Click to reset all settings on this page."/>
+        -->
+</PreferenceScreen>

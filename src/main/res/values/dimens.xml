@@ -3,4 +3,10 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="dayoverview_textsize_header">14dp</dimen>
+    <dimen name="dayoverview_textsize">26dp</dimen>
+
+    <dimen name="duringtowing_textsize_header">24dp</dimen>
+    <dimen name="duringtowing_textsize">34dp</dimen>
+    <dimen name="duringtowing_textsize_button">20dp</dimen>
 </resources>

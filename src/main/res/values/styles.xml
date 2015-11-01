@@ -1,13 +1,48 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="windowActionBar">true</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/background</item>
+
+        <item name="actionOverflowButtonStyle">@style/OverFlowStyle</item>
     </style>
+
+    <style name="AppTheme.Fullscreen" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/background</item>
+    </style>
+
+    <!-- Used for the dayoverview activity -->
+    <style name="SecondaryAppTheme" parent="AppTheme">
+        <item name="android:colorBackground">@color/background</item>
+
+        <item name="android:actionMenuTextColor">@color/background</item>
+        <item name="android:textColorPrimary">#ff0000</item>
+        <item name="android:textColorSecondary">#00ff00</item>
+        <item name="android:textColorTertiary">@color/textColorPrimary</item> <!-- TextView colors -->
+    </style>
+
+    <style name="ToolbarStyle" parent="@style/ThemeOverlay.AppCompat.Dark">
+
+    </style>
+
+    <style name="OverFlowStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@mipmap/menu_bars_icon</item>
+    </style>
+
 
 
 </resources>

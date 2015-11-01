@@ -1,0 +1,20 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="General settings" />
+
+    <header
+        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$GPSPreferenceFragment"
+        android:icon="@mipmap/ic_gps_location"
+        android:title="GPS settings" />
+
+    <header
+        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$DataSyncPreferenceFragment"
+        android:icon="@drawable/ic_sync_black_24dp"
+        android:title="Fiken eAccounting sync" />
+
+</preference-headers>

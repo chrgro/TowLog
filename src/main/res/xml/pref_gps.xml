@@ -1,0 +1,57 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="GPS Accuracy"
+        android:key="pref_key_storage_settings">
+
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="gps_good_fixes_needed"
+            android:defaultValue="10"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Good GPS fix number"
+            android:summary="Number of consecutive good GPS fixes required before GPS status is considered good. Default: 10"/>
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="gps_accuracy_threshold"
+            android:defaultValue="40"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Accuracy threshold (m)"
+            android:summary="Minimum accuracy required for a good fix. Default: 40"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Tow Tracking">
+        <EditTextPreference
+            android:inputType="numberDecimal"
+            android:key="towing_speed_threshold"
+            android:defaultValue="8.0"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Towing speed threshold (m/s)"
+            android:summary="The speed at which towing is assumed to begin. Default: 8"/>
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="towing_altitude_increments"
+            android:defaultValue="100"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Altitude increments"
+            android:summary="Distance between each step in altitude. Default: 100"/>
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="towing_round_up_limit"
+            android:defaultValue="35"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Altitude round up limit (m)"
+            android:summary="Distance above each 100m before rounding up instead of down. Default: 35"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

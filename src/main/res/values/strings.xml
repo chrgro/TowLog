@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">TowLog2</string>
+    <!-- Strings related to Settings -->
+    <string name="app_name">Tow Log</string>
 
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_day">DayActivity</string>
-    <string name="title_activity_main2">Main2Activity</string>
+    <string name="default_log_email_address">nthf-styret@list.stud.ntnu.no</string>
+    <string name="title_activity_settings">Settings</string>
+
+
+
 </resources>

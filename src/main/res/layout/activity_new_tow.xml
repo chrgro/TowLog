@@ -1,95 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".NewTowActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context="no.ntnuf.towlog.towlog2.newtow.NewTowActivity">
 
-    <RelativeLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarnewtow"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:elevation="4dp" />
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true">
+        android:fillViewport="true"
+        android:layout_below="@+id/toolbarnewtow">
+        <RelativeLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true">
 
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Glider Registration"
-            android:id="@+id/gliderRegistrationTitle"
-            android:layout_marginTop="50dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Glider Registration"
+                android:id="@+id/gliderRegistrationTitle"
+                android:layout_marginTop="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
 
 
-        <AutoCompleteTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/gliderRegistrationIn"
-            android:textSize="30dp"
-            android:text="LN-GCN"
-            android:layout_below="@+id/gliderRegistrationTitle"
-            android:layout_alignParentStart="true"
-            android:capitalize="words" />
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress|textCapCharacters"
+                android:ems="10"
+                android:id="@+id/gliderRegistrationIn"
+                android:textSize="30dp"
+                android:text="LN-G"
+                android:layout_below="@+id/gliderRegistrationTitle"
+                android:layout_alignParentStart="true"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@+id/pilotNameTitle"
+                android:capitalize="characters" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Pilot Name (billing)"
-            android:id="@+id/pilotNameTitle"
-            android:layout_below="@+id/gliderRegistrationIn"
-            android:layout_alignParentStart="true" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Pilot Name (billing)"
+                android:id="@+id/pilotNameTitle"
+                android:layout_below="@+id/gliderRegistrationIn"
+                android:layout_alignParentStart="true" />
 
-        <AutoCompleteTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/pilotNameIn"
-            android:textSize="30dp"
-            android:text="Jon Jørgensen"
-            android:layout_below="@+id/pilotNameTitle"
-            android:layout_alignParentStart="true"
-            android:capitalize="characters" />
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords|textPersonName"
+                android:ems="10"
+                android:id="@+id/pilotNameIn"
+                android:textSize="30dp"
+                android:layout_below="@+id/pilotNameTitle"
+                android:layout_alignParentStart="true"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@+id/coPilotNameIn"
+                android:capitalize="words" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Co-pilot name (optional)"
-            android:id="@+id/coPilotNameTitle"
-            android:layout_below="@+id/pilotNameIn"
-            android:layout_alignParentStart="true" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="15dp"
+                android:id="@+id/pilotNameCheckmark"
+                android:layout_alignBottom="@+id/pilotNameIn"
+                android:layout_alignParentEnd="true" />
 
-        <AutoCompleteTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/coPilotNameIn"
-            android:textSize="30dp"
-            android:text=""
-            android:layout_below="@+id/coPilotNameTitle"
-            android:layout_alignParentStart="true"
-            android:capitalize="characters" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Co-pilot name (optional)"
+                android:id="@+id/coPilotNameTitle"
+                android:layout_below="@+id/pilotNameIn"
+                android:layout_alignParentStart="true" />
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords|textPersonName"
+                android:ems="10"
+                android:id="@+id/coPilotNameIn"
+                android:textSize="30dp"
+                android:text=""
+                android:layout_below="@+id/coPilotNameTitle"
+                android:imeOptions="actionDone"
+                android:layout_alignParentStart="true"
+                android:capitalize="words" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="15dp"
+                android:id="@+id/copilotNameCheckmark"
+                android:layout_alignBottom="@+id/coPilotNameIn"
+                android:layout_alignParentEnd="true" />
+
+            <android.support.design.widget.FloatingActionButton android:id="@+id/startTowButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_input_add"
+                android:tint="@color/white" />
+        </RelativeLayout>
 
 
-    </RelativeLayout>
+    </ScrollView>
 
-    <android.support.design.widget.FloatingActionButton android:id="@+id/startTowButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="@color/white" />
 </RelativeLayout>

@@ -1,108 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="no.ntnuf.tow.towlog2.DuringTowingActivity">
+    android:background="@color/background"
+    tools:context="no.ntnuf.towlog.towlog2.duringtowing.DuringTowingActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Pilot"
-        android:id="@+id/textview1"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="52dp" />
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarduringtowing"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:elevation="4dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Ola Normann"
-        android:id="@+id/duringtowingpilot"
-        android:layout_below="@+id/textview1"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Registration"
-        android:id="@+id/textView"
-        android:layout_below="@+id/duringtowingpilot"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="LN-GGG"
-        android:id="@+id/duringtowingregistration"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0m"
-        android:id="@+id/currentHeight"
-        android:textSize="50dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Ready for tow"
-        android:id="@+id/infoTowText"
-        android:layout_above="@+id/currentHeight"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="80dp"
-        android:text="Release"
-        android:id="@+id/releaseButton"
-        android:layout_below="@+id/currentHeight"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Abort Tow"
-        android:id="@+id/abortTowButton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="+"
-        android:id="@+id/incHeightButton"
-        android:layout_alignBottom="@+id/infoTowText"
-        android:layout_alignParentRight="true" />
-
-    <Button
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="-"
-        android:id="@+id/decHeightButton"
-        android:layout_below="@+id/incHeightButton"
-        android:layout_alignParentRight="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Confirm Tow"
-        android:id="@+id/confirmTowButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbarduringtowing"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:context="no.ntnuf.towlog.towlog2.duringtowing.DuringTowingActivity">
 
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Abort Tow"
+            android:textSize="@dimen/duringtowing_textsize_button"
+            android:padding="10dp"
+            android:id="@+id/abortTowButton"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm Tow"
+            android:textSize="@dimen/duringtowing_textsize_button"
+            android:padding="10dp"
+            android:id="@+id/confirmTowButton"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Pilot"
+                android:textSize="@dimen/duringtowing_textsize_header"
+                android:id="@+id/pilottitle"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Ola Normann"
+                android:textSize="@dimen/duringtowing_textsize"
+                android:id="@+id/duringtowingpilot"
+                android:layout_below="@+id/pilottitle"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Registration"
+                android:textSize="@dimen/duringtowing_textsize_header"
+                android:id="@+id/textView"
+                android:layout_below="@+id/duringtowingpilot"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="LN-GGG"
+                android:textSize="@dimen/duringtowing_textsize"
+                android:id="@+id/duringtowingregistration"
+                android:layout_below="@+id/textView"
+                android:layout_alignParentStart="true" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Waiting for GPS fix"
+                android:textSize="@dimen/duringtowing_textsize_header"
+                android:id="@+id/infoTowText"
+                android:layout_below="@+id/duringtowingregistration"
+                android:layout_centerHorizontal="true" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="0m"
+                android:id="@+id/currentHeight"
+                android:textSize="50dp"
+                android:layout_below="@id/infoTowText"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:layout_width="220dp"
+                android:layout_height="100dp"
+                android:text="Release"
+                android:textSize="@dimen/duringtowing_textsize_button"
+                android:id="@+id/releaseButton"
+                android:layout_below="@+id/currentHeight"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:text="+"
+                android:textSize="@dimen/duringtowing_textsize_button"
+                android:id="@+id/incHeightButton"
+                android:layout_alignBottom="@+id/infoTowText"
+                android:layout_alignParentRight="true" />
+
+            <Button
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:text="-"
+                android:textSize="@dimen/duringtowing_textsize_button"
+                android:id="@+id/decHeightButton"
+                android:layout_below="@+id/incHeightButton"
+                android:layout_alignParentRight="true" />
+
+
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/duringtowing_seekbarlock"
+                android:layout_below="@+id/releaseButton"
+                android:layout_alignEnd="@+id/releaseButton"
+                android:layout_alignStart="@+id/releaseButton"
+                android:max="100"
+                android:thumbTint="#e1cf0b"
+                android:splitTrack="false"
+                android:progressBackgroundTintMode="multiply"
+                android:minHeight="40dp" />
+        </RelativeLayout>
+
+    </RelativeLayout>
 </RelativeLayout>
