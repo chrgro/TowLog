@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class DayLog implements Serializable{
 
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 6L;
 
     public Contact towpilot;
     public String towplane;
@@ -46,7 +46,7 @@ public class DayLog implements Serializable{
         ret += "towplane, " + towplane + "\n";
         ret += "date, " + outdf.format(this.date) + "\n\n";
 
-        ret += "tow#, registration, pilot, copilot, height, timeOfTow \n\n";
+        ret += "tow#, registration, pilot (billing), copilot, height, timeOfTow, notes \n\n";
 
         int i = 1;
         for (TowEntry tow : tows) {
@@ -61,6 +61,7 @@ public class DayLog implements Serializable{
 
             ret += tow.height +"m" + ", ";
             ret += time.format(tow.towStarted) + ", " ;
+            ret += tow.notes + ", ";
 
             ret += "\n";
             i++;

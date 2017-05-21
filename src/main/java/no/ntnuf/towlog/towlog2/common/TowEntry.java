@@ -8,7 +8,7 @@ import java.util.Date;
  */
 public class TowEntry implements Serializable {
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     public int height = 0;
 
@@ -18,5 +18,6 @@ public class TowEntry implements Serializable {
     public Date towStarted;
 
     public String registration = "";
+    public String notes = "";
 
 }

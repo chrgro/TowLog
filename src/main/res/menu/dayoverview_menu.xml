@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_senddaylog"
-        android:title="Lock and send log" />
+        android:title="Send log" />
     <item android:id="@+id/menu_reenablelog"
-        android:title="Unlock log"
+        android:title="Unlock log (to add more tows)"
         android:visible="false"/>
 
     <item android:id="@+id/menu_unused"
@@ -30,13 +30,16 @@
     <item android:id="@+id/menu_loadfikencontacts"
         android:title="Load contacts from Fiken Accounting" />
 
+    <item android:id="@+id/menu_unused4"
+        android:title="---" />
+
     <item android:id="@+id/menu_clearpilotlist"
         android:title="Clear autocomplete pilot list" />
 
     <item android:id="@+id/menu_clearregistrationlist"
         android:title="Clear autocomplete registration list" />
-
+    <!--
     <item android:id="@+id/menu_uploadtofiken"
         android:title="(Unused): Upload day to Fiken Accounting" />
-
+    -->
 </menu>

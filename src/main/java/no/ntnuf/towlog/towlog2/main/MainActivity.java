@@ -174,6 +174,20 @@ public class MainActivity extends AppCompatActivity {
                             .setNegativeButton("No", null)
                             .show();
 
+                } else if (datepicker.getDayOfMonth() != today.get(Calendar.DAY_OF_MONTH) ||
+                        datepicker.getMonth() != today.get(Calendar.MONTH) ||
+                        datepicker.getYear() != today.get(Calendar.YEAR)) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("You did not pick todays date. " +
+                                    "Are you sure this is the date you want?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    startNewDay();
+                                }
+                            })
+                            .setNegativeButton("No", null)
+                            .show();
                 } else {
                     startNewDay();
                 }

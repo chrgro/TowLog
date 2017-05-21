@@ -39,10 +39,29 @@
             android:title="Email address to send log to" />
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="send_log_to_customers"
-            android:title="Send towlog to customers"
-            android:summary="If enabled, also send the log to all pilots and copilots if their email address is available. Default: false"/>
+            android:title="Send towlog to pilots"
+            android:summary="If enabled, also send the log to all pilots if their email address is available. Default: true"/>
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="send_log_to_customers_using_bcc"
+            android:title="Send using bcc"
+            android:summary="If log is sent to pilots, choose whether to send as CC or BCC. Use BCC if true. Default: true (BCC)"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Tow Notes"
+        android:key="pref_key_storage_settings">
+        <EditTextPreference
+            android:inputType="text"
+            android:key="default_notes"
+            android:maxLines="1"
+            android:defaultValue="Instruktøropplæring,Introkurs,Klubbslep"
+            android:singleLine="true"
+            android:title="Default notes avavailable"
+            android:summary="Comma-separated list of default notes available." />
+
     </PreferenceCategory>
 
     <!-- This doesnt work...

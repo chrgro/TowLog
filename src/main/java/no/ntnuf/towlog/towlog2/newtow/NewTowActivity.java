@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import no.ntnuf.towlog.towlog2.common.Contact;
+import no.ntnuf.towlog.towlog2.common.NotesAdapter;
 import no.ntnuf.towlog.towlog2.duringtowing.DuringTowingActivity;
 import no.ntnuf.tow.towlog2.R;
 import no.ntnuf.towlog.towlog2.common.RegistrationList;
@@ -28,6 +29,7 @@ public class NewTowActivity extends AppCompatActivity {
     private AutoCompleteTextView pilotIn;
     private AutoCompleteTextView copilotIn;
     private AutoCompleteTextView registrationIn;
+    private AutoCompleteTextView notesIn;
     private ImageView pilotCheckmark;
     private ImageView copilotCheckmark;
 
@@ -40,6 +42,7 @@ public class NewTowActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private SharedPreferences settings;
+    private NotesAdapter notesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +62,6 @@ public class NewTowActivity extends AppCompatActivity {
         // Set up main pilot name input
         pilotIn = (AutoCompleteTextView) findViewById(R.id.pilotNameIn);
         pilotCheckmark = (ImageView) findViewById(R.id.pilotNameCheckmark);
-        pilotIn.setAdapter(contactlistmanager.getContactNameListAdapter());
         pilotIn.setAdapter(contactlistmanager.getContactNameListAdapter());
         pilotIn.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -111,6 +113,16 @@ public class NewTowActivity extends AppCompatActivity {
         registrationIn.setSelection(registrationIn.getText().length());
         registrationIn.setText(settings.getString("glider_default_reg",""));
 
+        // Set up notes input
+        notesAdapter = new NotesAdapter(this, settings);
+        notesIn = (AutoCompleteTextView) findViewById(R.id.notesIn);
+        notesIn.setAdapter(notesAdapter.getNotesAdapter());
+        notesIn.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                notesIn.showDropDown();
+            }
+        });
+
         // Set up button for starting tow
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.startTowButton);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +156,7 @@ public class NewTowActivity extends AppCompatActivity {
                 towentry.registration = reg;
                 towentry.pilot = selectedPilot;
                 towentry.copilot = selectedCoPilot;
+                towentry.notes = notesIn.getText().toString().trim();
 
                 // Bundle the data and start the next activity, DuringTowing
                 Intent intent = new Intent(NewTowActivity.this, DuringTowingActivity.class);

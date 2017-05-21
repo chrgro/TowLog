@@ -256,6 +256,7 @@ public class DayOverviewActivity extends AppCompatActivity {
                 return true;
 
             // Upload log directly to Fiken for invoicing (TODO: does not work)
+            /*
             case R.id.menu_uploadtofiken:
                 FikenInvoicePushTask fikenInvoice = new FikenInvoicePushTask();
                 fikenInvoice.setContext(this);
@@ -263,6 +264,7 @@ public class DayOverviewActivity extends AppCompatActivity {
                 fikenInvoice.setDayLog(daylog);
                 fikenInvoice.execute();
                 return true;
+            */
 
             // If the menu was locked before, unlock it now
             case R.id.menu_reenablelog:
@@ -331,10 +333,13 @@ public class DayOverviewActivity extends AppCompatActivity {
             emailintent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
             emailintent.putExtra(Intent.EXTRA_TEXT, daylog.getCsvOutput());
 
-            // If this setting is enabled, add all the emails to pilots and copilots to the CC
+            // If this setting is enabled, add all the emails to pilots to the BCC
             // list of the email
             if (settings.getBoolean("send_log_to_customers", false)) {
                 ArrayList<String> customerlist = new ArrayList<>();
+                if (daylog.towpilot != null && daylog.towpilot.email != null) {
+                    customerlist.add(daylog.towpilot.email);
+                }
                 for (TowEntry t : daylog.tows) {
                     if (t.pilot != null && t.pilot.email != null) {
                         customerlist.add(t.pilot.email);
@@ -344,7 +349,12 @@ public class DayOverviewActivity extends AppCompatActivity {
                     }
                 }
                 String[] cl = customerlist.toArray(new String[customerlist.size()]);
-                emailintent.putExtra(Intent.EXTRA_CC, cl);
+                if (settings.getBoolean("send_log_to_customers_using_bcc", true)) {
+                    emailintent.putExtra(Intent.EXTRA_BCC, cl);
+                } else {
+                    emailintent.putExtra(Intent.EXTRA_CC, cl);
+                }
+
             }
 
             startActivityForResult(Intent.createChooser(emailintent, "Send email using"), 2);
@@ -433,6 +443,14 @@ public class DayOverviewActivity extends AppCompatActivity {
             copilot.setPadding(0, 0, 5, 0);
         }
 
+        TextView notes = new TextView(this);
+        if (tow.notes != "") {
+            notes.setText(tow.notes);
+            notes.setTextSize(textsize);
+            notes.setPadding(0, 0, 5, 0);
+            notes.setTypeface(null, Typeface.ITALIC);
+        }
+
         RelativeLayout regandbuttons = new RelativeLayout(this);
         RelativeLayout.LayoutParams myparam = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.FILL_PARENT,
@@ -514,6 +532,9 @@ public class DayOverviewActivity extends AppCompatActivity {
         regAndNames.addView(pilot);
         if (tow.copilot != null) {
             regAndNames.addView(copilot);
+        }
+        if (tow.notes != "") {
+            regAndNames.addView(notes);
         }
 
         tr.addView(regAndNames);

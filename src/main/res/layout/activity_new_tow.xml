@@ -36,7 +36,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Glider Registration"
                 android:id="@+id/gliderRegistrationTitle"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
 
@@ -86,13 +86,13 @@
                 android:layout_alignParentEnd="true" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Co-pilot name (optional)"
-                android:id="@+id/coPilotNameTitle"
-                android:layout_below="@+id/pilotNameIn"
-                android:layout_alignParentStart="true" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Co-pilot name (optional)"
+            android:id="@+id/coPilotNameTitle"
+            android:layout_below="@+id/pilotNameIn"
+            android:layout_alignParentStart="true" />
 
             <AutoCompleteTextView
                 android:layout_width="match_parent"
@@ -103,8 +103,9 @@
                 android:textSize="30dp"
                 android:text=""
                 android:layout_below="@+id/coPilotNameTitle"
-                android:imeOptions="actionDone"
+                android:imeOptions="actionNext"
                 android:layout_alignParentStart="true"
+                android:nextFocusDown="@+id/notesIn"
                 android:capitalize="words" />
 
             <ImageView
@@ -114,6 +115,28 @@
                 android:id="@+id/copilotNameCheckmark"
                 android:layout_alignBottom="@+id/coPilotNameIn"
                 android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Additional notes (optional)"
+                android:id="@+id/notesTitle"
+                android:layout_below="@+id/coPilotNameIn"
+                android:layout_alignParentStart="true" />
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:ems="10"
+                android:id="@+id/notesIn"
+                android:textSize="30dp"
+                android:text=""
+                android:layout_below="@+id/notesTitle"
+                android:imeOptions="actionDone"
+                android:layout_alignParentStart="true"
+                android:capitalize="sentences" />
 
             <android.support.design.widget.FloatingActionButton android:id="@+id/startTowButton"
                 android:layout_width="wrap_content"

@@ -17,9 +17,10 @@ public class GPSLocationHandler implements LocationListener {
 
     LocationManager locationManager;
 
-    private float TOWING_SPEED_THRESHOLD;
-    private int NUM_GOOD_FIXES_NEEDED;
-    private float ACCURACY_THRESHOLD;
+    // These values are overridden by settings later
+    private float TOWING_SPEED_THRESHOLD = 100;
+    private int NUM_GOOD_FIXES_NEEDED = 1;
+    private float ACCURACY_THRESHOLD = 1;
 
     private int num_good_fixes = 0;
 
