@@ -122,7 +122,7 @@ public class DayLog implements Serializable{
 
     // Helper function to remove a single log line
     public void deleteLogLine(int line) {
-        if (line > 0 && line < tows.size()) {
+        if (line >= 0 && line < tows.size()) {
             tows.remove(line);
         }
     }

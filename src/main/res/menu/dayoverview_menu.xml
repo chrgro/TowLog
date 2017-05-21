@@ -3,7 +3,7 @@
     <item android:id="@+id/menu_senddaylog"
         android:title="Send log" />
     <item android:id="@+id/menu_reenablelog"
-        android:title="Unlock log (to add more tows)"
+        android:title="Unlock log (to edit)"
         android:visible="false"/>
 
     <item android:id="@+id/menu_unused"

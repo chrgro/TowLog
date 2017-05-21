@@ -532,10 +532,17 @@ public class DayOverviewActivity extends AppCompatActivity {
         regAndNames.addView(pilot);
         if (tow.copilot != null) {
             regAndNames.addView(copilot);
+            //Log.e("MM","I have a copilot");
+        } else {
+            //Log.e("MM","Empty copilot");
         }
         if (tow.notes != "") {
             regAndNames.addView(notes);
+            //Log.e("MM","I have notes:"+tow.notes);
+        } else {
+            //Log.e("MM", "No note");
         }
+
 
         tr.addView(regAndNames);
 
