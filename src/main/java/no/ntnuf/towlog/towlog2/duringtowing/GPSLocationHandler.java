@@ -51,17 +51,20 @@ public class GPSLocationHandler implements LocationListener {
 
     public void prepareTowing(DuringTowingActivity callback, SharedPreferences settings) {
         Log.e("GPS", "Preparing tow");
-        towmode = TowMode.TAXI;
-        this.callback = callback;
-        altitude_history = new double[NUM_GOOD_FIXES_NEEDED];
-        for (int i = 0; i < NUM_GOOD_FIXES_NEEDED; i++) {
-            altitude_history[i] = 10000000; // High enough
-        }
-        lastlocation = new Location("no gps signal yet");
 
         TOWING_SPEED_THRESHOLD = Float.valueOf(settings.getString("towing_speed_threshold", "8.0f")); // meters/second
         NUM_GOOD_FIXES_NEEDED = Integer.valueOf(settings.getString("gps_good_fixes_needed", "10"));
         ACCURACY_THRESHOLD = Float.valueOf(settings.getString("gps_accuracy_threshold", "40.0f"));
+
+        towmode = TowMode.TAXI;
+        this.callback = callback;
+
+        altitude_history = new double[NUM_GOOD_FIXES_NEEDED];
+        for (int i = 0; i < NUM_GOOD_FIXES_NEEDED; i++) {
+            altitude_history[i] = 10000000; // High enough
+        }
+
+        lastlocation = new Location("no gps signal yet");
 
         num_good_fixes = 0;
     }
