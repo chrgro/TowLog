@@ -15,16 +15,17 @@ import java.util.Arrays;
  */
 public class GPSLocationHandler implements LocationListener {
 
-    LocationManager locationManager;
+    private LocationManager locationManager;
+    private GPXGenerator gpxgenerator;
 
     // These values are overridden by settings later
-    private float TOWING_SPEED_THRESHOLD = 100;
-    private int NUM_GOOD_FIXES_NEEDED = 1;
-    private float ACCURACY_THRESHOLD = 1;
+    private float TOWING_SPEED_THRESHOLD;
+    private int NUM_GOOD_FIXES_NEEDED;
+    private float ACCURACY_THRESHOLD;
 
-    private int num_good_fixes = 0;
+    private int num_good_fixes;
 
-    private double[] altitude_history = new double[NUM_GOOD_FIXES_NEEDED];
+    private double[] altitude_history;
 
     double max_tow_height = -1.0;
 
@@ -33,8 +34,10 @@ public class GPSLocationHandler implements LocationListener {
     private Location lastlocation;
 
     public void setLocationManager(LocationManager loc) {
-        locationManager = loc;
+        this.locationManager = loc;
     }
+
+    public void setGPXGenerator(GPXGenerator gpxgenerator) { this.gpxgenerator = gpxgenerator; }
 
     private enum TowMode{
         TAXI,
@@ -50,6 +53,7 @@ public class GPSLocationHandler implements LocationListener {
         Log.e("GPS", "Preparing tow");
         towmode = TowMode.TAXI;
         this.callback = callback;
+        altitude_history = new double[NUM_GOOD_FIXES_NEEDED];
         for (int i = 0; i < NUM_GOOD_FIXES_NEEDED; i++) {
             altitude_history[i] = 10000000; // High enough
         }
@@ -58,6 +62,8 @@ public class GPSLocationHandler implements LocationListener {
         TOWING_SPEED_THRESHOLD = Float.valueOf(settings.getString("towing_speed_threshold", "8.0f")); // meters/second
         NUM_GOOD_FIXES_NEEDED = Integer.valueOf(settings.getString("gps_good_fixes_needed", "10"));
         ACCURACY_THRESHOLD = Float.valueOf(settings.getString("gps_accuracy_threshold", "40.0f"));
+
+        num_good_fixes = 0;
     }
 
     public void endTowing() {
@@ -137,6 +143,10 @@ public class GPSLocationHandler implements LocationListener {
             }
             callback.updateRunningHeight((int) max_tow_height);
 
+            // Log the location
+            if (gpxgenerator != null) {
+                gpxgenerator.appendTrackpoint(location);
+            }
 
         } else if (towmode == TowMode.IDLE) {
             // Do nothing

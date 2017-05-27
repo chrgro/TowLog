@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up towplane input
         towPlaneIn = (EditText) findViewById(R.id.towPlaneIn);
-        towPlaneIn.setText(settings.getString("lasttowplane", settings.getString("towplane_default_reg","")));
+        towPlaneIn.setText(settings.getString("towplane_default_reg",""));
 
 
         // Set up Datepicker
@@ -138,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
                 c.set(year, monthOfYear, dayOfMonth);
                 selecteddate = c.getTime();
 
-                dayLogFileNameSuffix = String.valueOf(year) + "_" + String.valueOf(monthOfYear + 1) +
-                        "_" + String.valueOf(dayOfMonth);
+                SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
+                dayLogFileNameSuffix = outdf.format(selecteddate);
 
                 Log.e("DATEPICKER", dayLogFileNameSuffix);
 
@@ -448,17 +448,26 @@ public class MainActivity extends AppCompatActivity {
         today = Calendar.getInstance();
 
         // Day log loader, check if we already have a log for the current date
-        dayLogFileNameSuffix = String.valueOf(datepicker.getYear()) + "_" +
-                String.valueOf(datepicker.getMonth()+1) + "_" +
-                String.valueOf(datepicker.getDayOfMonth());
+
+        int day = datepicker.getDayOfMonth();
+        int month = datepicker.getMonth();
+        int year =  datepicker.getYear();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        Date d = calendar.getTime();
+
+        SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
+        dayLogFileNameSuffix = outdf.format(d);
+
         if (loadDayLog()) {
             found_daylog = true;
             resumeDayButton.setVisibility(View.VISIBLE);
 
             // Jump straight to daylog if we are currently on the shown date from a clean startup
-            int day = datepicker.getDayOfMonth();
-            int month = datepicker.getMonth();
-            int year = datepicker.getYear();
+            day = datepicker.getDayOfMonth();
+            month = datepicker.getMonth();
+            year = datepicker.getYear();
             Calendar date_picked = Calendar.getInstance();
             date_picked.set(year, month, day);
 

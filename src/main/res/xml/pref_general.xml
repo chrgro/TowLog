@@ -1,8 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="Plane Registrations"
-        android:key="pref_key_storage_settings">
+        android:title="Plane Registrations">
 
         <EditTextPreference
             android:capitalize="words"
@@ -48,6 +47,38 @@
             android:key="send_log_to_customers_using_bcc"
             android:title="Send using bcc"
             android:summary="If log is sent to pilots, choose whether to send as CC or BCC. Use BCC if true. Default: true (BCC)"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Upload logs and GPS tracks">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="upload_log_enabled"
+            android:title="Upload logs to server"
+            android:summary="If enabled, uploads tow logs and GPS tracks using HTTP POST to the server specified. Default: false"/>
+        <EditTextPreference
+            android:inputType="text"
+            android:key="upload_log_url"
+            android:maxLines="1"
+            android:defaultValue="https://"
+            android:singleLine="true"
+            android:title="URL for log upload" />
+        <EditTextPreference
+            android:inputType="text"
+            android:key="upload_log_username"
+            android:maxLines="1"
+            android:defaultValue=""
+            android:singleLine="true"
+            android:title="HTTP basic auth username" />
+        <EditTextPreference
+            android:inputType="textPassword"
+            android:key="upload_log_password"
+            android:maxLines="1"
+            android:defaultValue=""
+            android:singleLine="true"
+            android:title="HTTP basic auth password" />
     </PreferenceCategory>
 
     <PreferenceCategory

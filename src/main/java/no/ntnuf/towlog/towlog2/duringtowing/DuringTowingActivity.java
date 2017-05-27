@@ -51,6 +51,8 @@ public class DuringTowingActivity extends AppCompatActivity {
     private GPSLocationHandler gpslocation;
     private LocationManager locationManager;
 
+    private GPXGenerator gpxgenerator;
+
     private final Handler handler = new Handler();
 
     private Context context;
@@ -191,7 +193,7 @@ public class DuringTowingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 forceDebugModeCounter++;
                 Date now = new Date();
-                if (clickTime == null || now.getTime()-clickTime.getTime() > 4000) {
+                if (clickTime == null || now.getTime() - clickTime.getTime() > 4000) {
                     clickTime = now;
                     forceDebugModeCounter = 0;
                 } else {
@@ -210,7 +212,7 @@ public class DuringTowingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 forceToggleTowModeCounter++;
                 Date now = new Date();
-                if (clickTime == null || now.getTime()-clickTime.getTime() > 4000) {
+                if (clickTime == null || now.getTime() - clickTime.getTime() > 4000) {
                     clickTime = now;
                     forceToggleTowModeCounter = 0;
                 } else {
@@ -308,6 +310,10 @@ public class DuringTowingActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
 
                 towentry.height = adjustedHeight;
+                if (gpxgenerator.isEnabled()) {
+                    towentry.gpx_body = gpxgenerator.getTrack();
+                    Log.e("DURINGTOW", "Finished tow GPX track with "+gpxgenerator.getNumPoints() +" points");
+                }
                 bundle.putSerializable("value", towentry);
                 response.putExtras(bundle);
                 setResult(Activity.RESULT_OK, response);
@@ -347,12 +353,16 @@ public class DuringTowingActivity extends AppCompatActivity {
         pilotnameTextView.setText(towentry.pilot.name);
         registrationTextView.setText(towentry.registration);
 
+        // Set up GPS track to GPX logging
+        gpxgenerator = new GPXGenerator(settings.getBoolean("tow_tracking_enabled", true));
+
         // GPS Init
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         gpslocation = new GPSLocationHandler();
 
         gpslocation.prepareTowing(this, this.settings);
         gpslocation.setLocationManager(locationManager);
+        gpslocation.setGPXGenerator(gpxgenerator);
 
         // GPS location updates are requested in onResume
 

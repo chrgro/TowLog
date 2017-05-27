@@ -2,12 +2,14 @@ package no.ntnuf.towlog.towlog2.dayoverview;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -25,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,12 +36,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.ZipOutputStream;
 
 import no.ntnuf.tow.towlog2.R;
+import no.ntnuf.towlog.towlog2.common.MultipartUtility;
+import no.ntnuf.towlog.towlog2.duringtowing.GPXGenerator;
 import no.ntnuf.towlog.towlog2.main.SettingsActivity;
 import no.ntnuf.towlog.towlog2.common.Contact;
 import no.ntnuf.towlog.towlog2.common.ContactListManager;
@@ -48,6 +55,7 @@ import no.ntnuf.towlog.towlog2.common.TowEntry;
 import no.ntnuf.towlog.towlog2.fiken.FikenContactRequestTask;
 import no.ntnuf.towlog.towlog2.fiken.FikenInvoicePushTask;
 import no.ntnuf.towlog.towlog2.newtow.NewTowActivity;
+
 
 public class DayOverviewActivity extends AppCompatActivity {
 
@@ -174,13 +182,13 @@ public class DayOverviewActivity extends AppCompatActivity {
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    sendLogViaEmail();
+                                    sendLog();
                                 }
                             })
                             .setNegativeButton("No", null)
                             .show();
                 } else {
-                    sendLogViaEmail();
+                    sendLog();
                 }
                 return true;
 
@@ -300,8 +308,90 @@ public class DayOverviewActivity extends AppCompatActivity {
         }
     }
 
-    // Send logfile (create intent and send off to email application)
+    // Root function for sending log
+    // First uploads the log, then emails it
+    public void sendLog() {
+        // Pack up and send the logs
+        if (settings.getBoolean("upload_log_enabled", false)) {
+            //Log.e("OUTPUT", daylog.getJSONOutput());
+
+            // Save a temporary file
+            FileOutputStream fos = null;
+            SimpleDateFormat outdf = new SimpleDateFormat("yyyy-MM-dd");
+            final String datestr = outdf.format(daylog.date);
+            final String logfilename = "tmp_daylog.json";
+            try {
+                fos = this.openFileOutput(logfilename, MODE_PRIVATE);
+                PrintStream prt = new PrintStream(fos);
+                prt.print(daylog.getJSONOutput());
+                prt.close();
+                fos.close();
+                Log.e("SAVE", "Saved to file "+logfilename);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e("SAVE", "Save, File not found" + logfilename);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("SAVE", "Save, IO Exception" + logfilename);
+            }
+
+            final Context context = this;
+
+            // Task to upload the data to the webserver
+            AsyncTask<Void, Void, String> a = new AsyncTask<Void, Void, String>(){
+                @Override
+                protected String doInBackground(Void... params) {
+                    String charset = "UTF-8";
+                    String requestURL = settings.getString("upload_log_url", "NO_URL_PROVIDED");
+                    String response = ""; // response from server.
+                    String usercredentials = null; // If any HTTP basic auth username/password
+                    if (settings.getString("upload_log_username", null) != null &&
+                            settings.getString("upload_log_password", null) != null) {
+                        usercredentials = settings.getString("upload_log_username", null) + ":" +
+                                settings.getString("upload_log_password", null);
+                    }
+                    try {
+                        // Assemble the HTTP post request
+                        MultipartUtility multipart = new MultipartUtility(requestURL, charset, usercredentials);
+                        multipart.addFormField("date", datestr);
+                        multipart.addFilePart("logfile", new File(getFilesDir(), logfilename));
+                        for (TowEntry tow : daylog.tows) {
+                            if (tow.gpx_filename != null) {
+                                multipart.addFilePart("gpxfile", new File(getFilesDir(), tow.gpx_filename));
+                                break;
+                            }
+                        }
+
+                        response = multipart.finish();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e("UPLOAD", e.toString());
+                    }
+                    Log.e("UPLOAD", response);
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(String s) {
+                    super.onPostExecute(s);
+                    Toast.makeText(context, "Uploaded day to webserver", Toast.LENGTH_LONG).show();
+
+                    // Once upload has completed, carry on with normal email sending
+                    sendLogViaEmail();
+                }
+            };
+            a.execute();
+
+        } else {
+            sendLogViaEmail();
+        }
+    }
+
+    // Send logfile using email (create intent and send off to email application)
     public void sendLogViaEmail() {
+
+
         SimpleDateFormat outdf = new SimpleDateFormat("cccc d/M/yyyy");
         String dstr = outdf.format(daylog.date);
 
@@ -395,6 +485,15 @@ public class DayOverviewActivity extends AppCompatActivity {
             TowEntry towentry = (TowEntry) bundle.getSerializable("value");
             daylog.tows.add(towentry);
 
+            // Extract and write out the GPX content to file
+            if (towentry.gpx_body != null) {
+                String filename = GPXGenerator.storeGPX(this, daylog, towentry, towentry.gpx_body);
+                if (filename != null) {
+                    towentry.gpx_filename = filename;
+                    towentry.gpx_body = null;
+                    Log.e("GPXGEN_RETURN", "Saved a GPX file: "+filename);
+                }
+            }
 
             // Refresh the table view
             refreshTowTable();
@@ -610,11 +709,8 @@ public class DayOverviewActivity extends AppCompatActivity {
     // Load the day log from a file
     private boolean loadDayLog(Date date) {
         boolean loadedSuccessfully = false;
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        daylogsuffix = String.valueOf(c.get(Calendar.YEAR))+"_"+
-                String.valueOf(c.get(Calendar.MONTH)+1)+"_"+
-                String.valueOf(c.get(Calendar.DAY_OF_MONTH));
+        SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
+        String daylogsuffix = outdf.format(date);
         String fullfilename = dayLogFileName+daylogsuffix;
         try {
             FileInputStream fis = this.openFileInput(fullfilename);
@@ -639,11 +735,8 @@ public class DayOverviewActivity extends AppCompatActivity {
     private void saveDayLog() {
         // Save the daylog
         FileOutputStream fos = null;
-        Calendar c = Calendar.getInstance();
-        c.setTime(daylog.date);
-        String daylogsuffix = String.valueOf(c.get(Calendar.YEAR))+"_"+
-                String.valueOf(c.get(Calendar.MONTH)+1)+"_"+
-                String.valueOf(c.get(Calendar.DAY_OF_MONTH));
+        SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
+        String daylogsuffix = outdf.format(daylog.date);
         String fullfilename = dayLogFileName+daylogsuffix;
         try {
             fos = this.openFileOutput(fullfilename, MODE_PRIVATE);

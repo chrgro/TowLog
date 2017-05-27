@@ -20,4 +20,7 @@ public class TowEntry implements Serializable {
     public String registration = "";
     public String notes = "";
 
+    public String gpx_filename = null;
+    public String gpx_body = null;
+
 }

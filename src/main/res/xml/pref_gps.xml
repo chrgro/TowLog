@@ -26,6 +26,15 @@
 
     <PreferenceCategory
         android:title="Tow Tracking">
+        <SwitchPreference
+            android:key="tow_tracking_enabled"
+            android:title="Enable GPS track logging"
+            android:summary="Save a GPX track for each tow."
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Tow Tracking">
         <EditTextPreference
             android:inputType="numberDecimal"
             android:key="towing_speed_threshold"

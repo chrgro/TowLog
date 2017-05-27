@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class DayLog implements Serializable{
 
-    private static final long serialVersionUID = 6L;
+    private static final long serialVersionUID = 7L;
 
     public Contact towpilot;
     public String towplane;
@@ -25,7 +25,6 @@ public class DayLog implements Serializable{
     private int logSentNumberOfTimes;
 
     public DayLog(Context context) {
-
         tows = new ArrayList<TowEntry>();
     }
 
@@ -74,6 +73,66 @@ public class DayLog implements Serializable{
         }
 
 
+
+        return ret;
+    }
+
+    // Generate a JSON representation of the daylog
+    public String getJSONOutput() {
+        SimpleDateFormat outdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        String ret = "{ \n";
+
+        ret += "\"towpilot\": \"" + towpilot.name + "\",\n";
+        ret += "\"towplane\": \"" + towplane + "\",\n";
+
+        ret += "\"date\": \"" + outdf.format(this.date) + "\",\n";
+
+        ret += "\"sent_times\": \"" + logSentNumberOfTimes + "\",\n";
+
+        ret += "\"tows\": [\n";
+        int i = 1;
+        boolean first = true;
+        for (TowEntry tow : tows) {
+            if (!first) {
+                ret += " ,\n";
+            }
+            ret += " {\n";
+            ret += "  \"townum\": " + String.valueOf(i) + ",\n";
+
+            ret += "  \"registration\": \"" + tow.registration + "\",\n";
+            ret += "  \"pilot\": \"" + tow.pilot.name + "\",\n";
+
+            if (tow.pilot.email != null) {
+                ret += "  \"pilot_email\": \"" + tow.pilot.email + "\",\n";
+            }
+
+            if (tow.copilot != null){
+                ret += "  \"copilot\": \"" + tow.copilot + "\",\n";
+                if (tow.copilot.email != null) {
+                    ret += "  \"copilot_email\": \"" + tow.copilot.email + "\",\n";
+                }
+            }
+
+            ret += "  \"tow_started\": \"" + time.format(tow.towStarted) + "\",\n";
+            ret += "  \"notes\": \"" + tow.notes + "\",\n";
+
+            if (tow.gpx_filename != null) {
+                ret += "  \"gpx_filename\": \"" + tow.gpx_filename + "\",\n";
+            }
+
+            ret += "  \"height\": " + tow.height + "\n";
+
+            ret += " }\n";
+
+            first = false;
+            i++;
+        }
+
+        ret += "]\n";
+
+        ret += "}\n";
 
         return ret;
     }

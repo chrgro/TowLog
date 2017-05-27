@@ -1,5 +1,4 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
     <PreferenceCategory
         android:title="Fiken.no API">
         <EditTextPreference
@@ -27,4 +26,6 @@
             android:title="Fiken.no API password"
             android:summary="Password used for authenticating against the REST API."/>
     </PreferenceCategory>
+
+
 </PreferenceScreen>
