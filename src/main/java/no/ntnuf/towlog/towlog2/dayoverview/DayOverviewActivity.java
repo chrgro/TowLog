@@ -149,6 +149,18 @@ public class DayOverviewActivity extends AppCompatActivity {
             }
         });
 
+        // Add a connectivity listener, waiting for when we get internet connection back
+        final Context context = this;
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
+            @Override
+            public void onNetworkActive() {
+                Log.e("DAYOVERVIEW", "Network connection active, checking for pending uploads");
+                LogUploader uploader = new LogUploader(context, settings);
+                uploader.uploadPending();
+            }
+        });
+
         // Alert dialog for fiken contact loading
         loadfikencontactsdialog = getLoadFikenContactsAlertDialog();
 
@@ -157,16 +169,6 @@ public class DayOverviewActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
-            @Override
-            public void onNetworkActive() {
-                Log.e("DAYOVERVIEW", "Network connection active, checking for pending uploads");
-                LogUploader uploader = new LogUploader();
-                uploader.uploadPending();
-            }
-        });
         Log.e("DAYOVERVIEW", "onResume() called");
     }
 
@@ -686,9 +688,7 @@ public class DayOverviewActivity extends AppCompatActivity {
     private void saveDayLog() {
         // Save the daylog
         FileOutputStream fos = null;
-        SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
-        String daylogsuffix = outdf.format(daylog.date);
-        String fullfilename = dayLogFileName+daylogsuffix;
+        String fullfilename = daylog.getFilename();
         try {
             fos = this.openFileOutput(fullfilename, MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
@@ -745,7 +745,7 @@ public class DayOverviewActivity extends AppCompatActivity {
 
     // Delete the day log
     private boolean deleteDayLog() {
-        boolean deleted = this.deleteFile(dayLogFileName+daylogsuffix);
+        boolean deleted = this.deleteFile(this.daylog.getFilename());
         return deleted;
     }
 

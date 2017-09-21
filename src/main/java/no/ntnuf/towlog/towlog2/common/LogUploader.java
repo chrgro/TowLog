@@ -103,7 +103,6 @@ public class LogUploader {
             protected String doInBackground(Void... params) {
 
                 // Loop through the pending files and upload them
-                ArrayList<Integer> completed = new ArrayList<>();
                 int i = -1;
 
                 for (File pending : pending_uploads.pending_files) {
@@ -122,6 +121,7 @@ public class LogUploader {
                         if (loadedSuccessfully) {
                             boolean success = uploadOne(to_upload);
                             if (success) {
+                                Log.e("LOGUPLOADER", "Adding one to completed list");
                                 completed.add(new Integer(i));
                             }
                         }
@@ -142,13 +142,17 @@ public class LogUploader {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 Log.e("LOGUPLOADER", "Uploaded "+completed.size()+" pending day logs to webserver");
-                Toast.makeText(context, "Uploaded "+completed.size()+" pending day logs to webserver", Toast.LENGTH_LONG).show();
+                if (completed.size() > 0) {
+                    Toast.makeText(context, "Uploaded " + completed.size() + " pending day logs to webserver", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(context, "No internet connection, will upload day log later", Toast.LENGTH_LONG).show();
+                }
 
                 // Remove the successfully completed ones
                 for (int i = completed.size() - 1; i >= 0; i--) {
                     pending_uploads.pending_files.remove(completed.get(i).intValue());
                 }
-
+                savePendingUploadsList();
             }
         };
         a.execute();
@@ -195,19 +199,17 @@ public class LogUploader {
             multipart.addFilePart("logfile", new File(context.getFilesDir(), logfilename));
 
             // Find all GPX files
-            boolean at_least_one_gpx = false;
             ArrayList<File> gpx_files = new ArrayList<File>();
             for (TowEntry tow : daylog_f.tows) {
                 if (tow.gpx_filename != null) {
                     gpx_files.add(new File(context.getFilesDir(), tow.gpx_filename));
-                    at_least_one_gpx = true;
                 }
             }
 
             // Give a hint as to how many tracks to expect
             multipart.addFormField("n_tracks", String.valueOf(gpx_files.size()));
 
-            // Add all the tracks
+            // Add all the tracks to the HTTP upload
             int i = 0;
             for (File track : gpx_files) {
                 multipart.addFilePart("file_"+String.valueOf(i), track);
