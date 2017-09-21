@@ -45,6 +45,7 @@ import java.util.zip.ZipOutputStream;
 
 import no.ntnuf.tow.towlog2.R;
 import no.ntnuf.towlog.towlog2.common.MultipartUtility;
+import no.ntnuf.towlog.towlog2.common.ZipUtils;
 import no.ntnuf.towlog.towlog2.duringtowing.GPXGenerator;
 import no.ntnuf.towlog.towlog2.main.SettingsActivity;
 import no.ntnuf.towlog.towlog2.common.Contact;
@@ -355,13 +356,28 @@ public class DayOverviewActivity extends AppCompatActivity {
                         MultipartUtility multipart = new MultipartUtility(requestURL, charset, usercredentials);
                         multipart.addFormField("date", datestr);
                         multipart.addFilePart("logfile", new File(getFilesDir(), logfilename));
+
+                        // Find all GPX files
+                        boolean at_least_one_gpx = false;
+                        ArrayList<File> gpx_files = new ArrayList<File>();
                         for (TowEntry tow : daylog.tows) {
                             if (tow.gpx_filename != null) {
-                                multipart.addFilePart("gpxfile", new File(getFilesDir(), tow.gpx_filename));
-                                break;
+                                gpx_files.add(new File(getFilesDir(), tow.gpx_filename));
+                                at_least_one_gpx = true;
                             }
                         }
 
+                        // Zip up the GPX files and add to HTTP request
+                        ZipUtils zipper = new ZipUtils();
+                        if (at_least_one_gpx) {
+                            File zipped_gpx = new File(getFilesDir(), "tows_"+datestr+".zip");
+                            if (zipper.zipFileArray(gpx_files, zipped_gpx.getCanonicalPath(), "tows_"+datestr)) {
+                                multipart.addFilePart("gpxfile", zipped_gpx);
+                                Log.e("GPXZIPPER", "Zipped up "+zipped_gpx.getCanonicalPath()+" filesdir "+getFilesDir());
+                            }
+                        }
+
+                        // Send the request
                         response = multipart.finish();
 
                     } catch (IOException e) {
