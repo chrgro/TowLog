@@ -24,6 +24,15 @@ public class DayLog implements Serializable{
     private boolean logHasBeenSent;
     private int logSentNumberOfTimes;
 
+    private final String dayLogFileName = "daylog_";
+
+    public String getFilename() {
+        SimpleDateFormat outdf = new SimpleDateFormat("yyyy_MM_dd");
+        String daylogsuffix = outdf.format(this.date);
+        String fullfilename = dayLogFileName + daylogsuffix;
+        return fullfilename;
+    }
+
     public DayLog(Context context) {
         tows = new ArrayList<TowEntry>();
     }

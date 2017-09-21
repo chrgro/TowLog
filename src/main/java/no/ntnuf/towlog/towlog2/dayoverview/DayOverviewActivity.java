@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import java.util.Date;
 import java.util.zip.ZipOutputStream;
 
 import no.ntnuf.tow.towlog2.R;
+import no.ntnuf.towlog.towlog2.common.LogUploader;
 import no.ntnuf.towlog.towlog2.common.MultipartUtility;
 import no.ntnuf.towlog.towlog2.common.ZipUtils;
 import no.ntnuf.towlog.towlog2.duringtowing.GPXGenerator;
@@ -155,6 +157,16 @@ public class DayOverviewActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
+            @Override
+            public void onNetworkActive() {
+                Log.e("DAYOVERVIEW", "Network connection active, checking for pending uploads");
+                LogUploader uploader = new LogUploader();
+                uploader.uploadPending();
+            }
+        });
         Log.e("DAYOVERVIEW", "onResume() called");
     }
 
@@ -314,94 +326,12 @@ public class DayOverviewActivity extends AppCompatActivity {
     public void sendLog() {
         // Pack up and send the logs
         if (settings.getBoolean("upload_log_enabled", false)) {
-            //Log.e("OUTPUT", daylog.getJSONOutput());
+            LogUploader uploader = new LogUploader(this, settings);
 
-            // Save a temporary file
-            FileOutputStream fos = null;
-            SimpleDateFormat outdf = new SimpleDateFormat("yyyy-MM-dd");
-            final String datestr = outdf.format(daylog.date);
-            final String logfilename = "tmp_daylog.json";
-            try {
-                fos = this.openFileOutput(logfilename, MODE_PRIVATE);
-                PrintStream prt = new PrintStream(fos);
-                prt.print(daylog.getJSONOutput());
-                prt.close();
-                fos.close();
-                Log.e("SAVE", "Saved to file "+logfilename);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Log.e("SAVE", "Save, File not found" + logfilename);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e("SAVE", "Save, IO Exception" + logfilename);
-            }
-
-            final Context context = this;
-
-            // Task to upload the data to the webserver
-            AsyncTask<Void, Void, String> a = new AsyncTask<Void, Void, String>(){
-                @Override
-                protected String doInBackground(Void... params) {
-                    String charset = "UTF-8";
-                    String requestURL = settings.getString("upload_log_url", "NO_URL_PROVIDED");
-                    String response = ""; // response from server.
-                    String usercredentials = null; // If any HTTP basic auth username/password
-                    if (settings.getString("upload_log_username", null) != null &&
-                            settings.getString("upload_log_password", null) != null) {
-                        usercredentials = settings.getString("upload_log_username", null) + ":" +
-                                settings.getString("upload_log_password", null);
-                    }
-                    try {
-                        // Assemble the HTTP post request
-                        MultipartUtility multipart = new MultipartUtility(requestURL, charset, usercredentials);
-                        multipart.addFormField("date", datestr);
-                        multipart.addFilePart("logfile", new File(getFilesDir(), logfilename));
-
-                        // Find all GPX files
-                        boolean at_least_one_gpx = false;
-                        ArrayList<File> gpx_files = new ArrayList<File>();
-                        for (TowEntry tow : daylog.tows) {
-                            if (tow.gpx_filename != null) {
-                                gpx_files.add(new File(getFilesDir(), tow.gpx_filename));
-                                at_least_one_gpx = true;
-                            }
-                        }
-
-                        // Zip up the GPX files and add to HTTP request
-                        ZipUtils zipper = new ZipUtils();
-                        if (at_least_one_gpx) {
-                            File zipped_gpx = new File(getFilesDir(), "tows_"+datestr+".zip");
-                            if (zipper.zipFileArray(gpx_files, zipped_gpx.getCanonicalPath(), "tows_"+datestr)) {
-                                multipart.addFilePart("gpxfile", zipped_gpx);
-                                Log.e("GPXZIPPER", "Zipped up "+zipped_gpx.getCanonicalPath()+" filesdir "+getFilesDir());
-                            }
-                        }
-
-                        // Send the request
-                        response = multipart.finish();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.e("UPLOAD", e.toString());
-                    }
-                    Log.e("UPLOAD", response);
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(String s) {
-                    super.onPostExecute(s);
-                    Toast.makeText(context, "Uploaded day to webserver", Toast.LENGTH_LONG).show();
-
-                    // Once upload has completed, carry on with normal email sending
-                    sendLogViaEmail();
-                }
-            };
-            a.execute();
-
-        } else {
-            sendLogViaEmail();
+            uploader.addToUploadQueue(this.daylog);
+            uploader.uploadPending();
         }
+        sendLogViaEmail();
     }
 
     // Send logfile using email (create intent and send off to email application)
@@ -495,14 +425,19 @@ public class DayOverviewActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.e("DAYOVERVIEW", "onActivityResult() called");
+
         // Grab the tow entry and add it to the daylog
         if (resultCode==RESULT_OK && requestCode == 1) {
             Bundle bundle = data.getExtras();
             TowEntry towentry = (TowEntry) bundle.getSerializable("value");
             daylog.tows.add(towentry);
 
+            Log.e("DAYOVERVIEW", "onActivityResult() result OK");
+
             // Extract and write out the GPX content to file
             if (towentry.gpx_body != null) {
+                Log.e("GPXGEN_RETURN", "GPX body not null:  "+towentry.gpx_body);
                 String filename = GPXGenerator.storeGPX(this, daylog, towentry, towentry.gpx_body);
                 if (filename != null) {
                     towentry.gpx_filename = filename;

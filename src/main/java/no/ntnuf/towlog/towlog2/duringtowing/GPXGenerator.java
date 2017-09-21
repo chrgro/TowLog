@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,9 +14,11 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.ZipOutputStream;
 
 import no.ntnuf.towlog.towlog2.common.DayLog;
 import no.ntnuf.towlog.towlog2.common.TowEntry;
+import no.ntnuf.towlog.towlog2.common.ZipUtils;
 
 /**
  * Created by Christian on 25.05.2017.
@@ -62,7 +65,11 @@ public class GPXGenerator implements Serializable{
     }
 
     public String getTrack() {
-        return num_points > 5 ? body : null;
+        if (num_points < 5) {
+            Log.e("GPX_WRITE", "Too few points to call getTrack()");
+            return null;
+        }
+        return body;
     }
 
     // Static functions to create the final string and write it out
@@ -103,15 +110,24 @@ public class GPXGenerator implements Serializable{
         String daylogsuffix = String.valueOf(c.get(Calendar.YEAR)) + "_" +
                 String.valueOf(c.get(Calendar.MONTH) + 1) + "_" +
                 String.valueOf(c.get(Calendar.DAY_OF_MONTH));
-        String towindex = "t" + String.valueOf(t.get(Calendar.HOUR_OF_DAY))+"_"+
+        String towindex = "T" + String.valueOf(t.get(Calendar.HOUR_OF_DAY))+"_"+
                 String.valueOf(t.get(Calendar.MINUTE))+"_"+
                 String.valueOf(t.get(Calendar.SECOND));
-        String filename = "tow_" + daylogsuffix + "_" + towindex + ".gpx";
+        String filename = "tow_" + daylogsuffix + "" + towindex + ".gpx";
+        String zippedfilename = filename+".zip";
+
+        ZipUtils zip = new ZipUtils();
         try {
             fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
             fos.write(gpx_content.getBytes());
             fos.close();
-            Log.e("GPX_WRITE", "Saved GPX to file "+filename);
+            File raw_gpx = new File(context.getFilesDir(), filename);
+            Log.e("GPX_WRITE", "Saved GPX to file "+raw_gpx.getCanonicalPath());
+            File zipped_gpx = new File(context.getFilesDir(), zippedfilename);
+            zip.zipFileAtPath(raw_gpx.getCanonicalPath(), zipped_gpx.getCanonicalPath());
+            Log.e("GPX_WRITE", "Zipped GPX to file "+zipped_gpx.getCanonicalPath());
+            context.deleteFile(filename);
+            Log.e("GPX_WRITE", "Deleted unzipped GPX file "+raw_gpx.getCanonicalPath());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.e("GPX_WRITE", "Save GPX, File not found" + filename);
@@ -121,6 +137,6 @@ public class GPXGenerator implements Serializable{
             Log.e("GPX_WRITE", "Save GPX, IO Exception" + filename);
             return null;
         }
-        return filename;
+        return zippedfilename;
     }
 }
