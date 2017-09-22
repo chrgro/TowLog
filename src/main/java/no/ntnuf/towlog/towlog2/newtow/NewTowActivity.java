@@ -1,7 +1,11 @@
 package no.ntnuf.towlog.towlog2.newtow;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -23,8 +27,9 @@ import no.ntnuf.tow.towlog2.R;
 import no.ntnuf.towlog.towlog2.common.RegistrationList;
 import no.ntnuf.towlog.towlog2.common.TowEntry;
 import no.ntnuf.towlog.towlog2.common.ContactListManager;
+import no.ntnuf.towlog.towlog2.duringtowing.GPSLocationHandler;
 
-public class NewTowActivity extends AppCompatActivity {
+public class NewTowActivity extends AppCompatActivity implements LocationListener {
 
     private AutoCompleteTextView pilotIn;
     private AutoCompleteTextView copilotIn;
@@ -43,6 +48,8 @@ public class NewTowActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private NotesAdapter notesAdapter;
+
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +177,22 @@ public class NewTowActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Set up a GPS location listener on this screen, to aquire GPS signals
+        // faster when we actually need them in the next activity
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(this);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -191,4 +214,21 @@ public class NewTowActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        // Nothing much to do here. Perhaps in the future show some icon to
+        // indicate if the GPS is connected or not
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
 }

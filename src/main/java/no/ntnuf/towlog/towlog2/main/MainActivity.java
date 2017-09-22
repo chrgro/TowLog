@@ -445,10 +445,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.e("MAIN", "onResume() called");
 
+        // Always return to todays date on resuming the app
         today = Calendar.getInstance();
+        datepicker.updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
 
         // Day log loader, check if we already have a log for the current date
-
         int day = datepicker.getDayOfMonth();
         int month = datepicker.getMonth();
         int year =  datepicker.getYear();
