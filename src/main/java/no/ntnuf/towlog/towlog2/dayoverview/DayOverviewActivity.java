@@ -634,18 +634,6 @@ public class DayOverviewActivity extends AppCompatActivity {
 
             // Add the text row
             final TableRow tbv = addTowToTable(tow, townumber);
-            tbv.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    editMode = !editMode;
-
-                    rememberMe = tbv;
-                    //Snackbar.make(tableLayout, "", Snackbar.LENGTH_LONG)
-                    //        .setAction("Action", null).show();
-                    refreshTowTable();
-                    return false;
-                }
-            });
 
             // Add the row separator
             View separator = new View(this);
