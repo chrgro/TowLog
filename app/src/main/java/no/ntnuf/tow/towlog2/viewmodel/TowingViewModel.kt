@@ -60,7 +60,7 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun updateTowPlane(plane: String) {
-        _towPlane.value = plane
+        _towPlane.value = plane.uppercase(Locale.ROOT)
     }
 
     fun updateSelectedDate(date: Date) {
@@ -96,7 +96,8 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun loadDefaultTowPlane() {
-        _towPlane.value = settings.getString("towplane_default_reg", "") ?: ""
+        _towPlane.value = (settings.getString("towplane_default_reg", "") ?: "")
+            .uppercase(Locale.ROOT)
     }
 
     suspend fun loadFikenContacts(): FikenLoadResult {

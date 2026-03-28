@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,7 +96,11 @@ fun MainScreen(
                     value = towPilotName,
                     onValueChange = { viewModel.updateTowPilotName(it) },
                     label = { Text("Tow Pilot Name") },
-                    modifier = Modifier.menuAnchor()
+                    modifier = Modifier.menuAnchor(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Words
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -127,9 +132,12 @@ fun MainScreen(
             // Tow Plane
             OutlinedTextField(
                 value = towPlane,
-                onValueChange = { viewModel.updateTowPlane(it) },
+                onValueChange = { viewModel.updateTowPlane(it.uppercase(Locale.ROOT)) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Characters
+                ),
                 label = { Text("Tow Plane Registration") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             // Buttons

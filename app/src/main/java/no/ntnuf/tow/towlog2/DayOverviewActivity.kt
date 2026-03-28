@@ -114,7 +114,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val strdate = outdf.format(date)
 
         toolbar = findViewById(R.id.toolbardayoverview)
-        val toolbartitle = "Day Log  -  $strdate"
+        val toolbartitle = "Tow Log  -  $strdate"
         toolbar.title = toolbartitle
         setSupportActionBar(toolbar)
 
