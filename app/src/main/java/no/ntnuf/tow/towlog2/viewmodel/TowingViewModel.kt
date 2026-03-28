@@ -4,23 +4,26 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import no.ntnuf.tow.towlog2.fiken.FikenApiClient
 import no.ntnuf.tow.towlog2.model.Contact
-import no.ntnuf.tow.towlog2.model.ContactList
+import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.model.DayLog
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TowingViewModel(application: Application) : AndroidViewModel(application) {
+
+    data class FikenLoadResult(
+        val success: Boolean,
+        val message: String,
+        val count: Int = 0
+    )
 
     private val _towPilotName = MutableStateFlow("")
     val towPilotName: StateFlow<String> = _towPilotName
@@ -43,6 +46,7 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
     private val settings: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
 
     private val contactListManager = ContactListManager(application)
+    private val fikenApiClient = FikenApiClient(settings)
 
     init {
         loadContacts()
@@ -77,7 +81,7 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
             ois.close()
             fis.close()
             dayLog
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -93,6 +97,32 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadDefaultTowPlane() {
         _towPlane.value = settings.getString("towplane_default_reg", "") ?: ""
+    }
+
+    suspend fun loadFikenContacts(): FikenLoadResult {
+        val loadedContacts = withContext(Dispatchers.IO) {
+            fikenApiClient.loadContacts()
+        }
+
+        return loadedContacts.fold(
+            onSuccess = { contacts ->
+                withContext(Dispatchers.IO) {
+                    contactListManager.setContacts(contacts)
+                }
+                _contacts.value = contactListManager.getContacts()
+                FikenLoadResult(
+                    success = true,
+                    message = "Loaded contacts",
+                    count = contacts.size
+                )
+            },
+            onFailure = {
+                FikenLoadResult(
+                    success = false,
+                    message = "Failed to load contacts"
+                )
+            }
+        )
     }
 
     fun startNewDay(): Bundle {
@@ -119,60 +149,6 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
             putSerializable("date", dayLog.date)
             putSerializable("action", "resume")
             putSerializable("reason", "Resuming day")
-        }
-    }
-
-    // Inner class for ContactListManager
-    private class ContactListManager(private val context: Application) {
-        private var contactList: ContactList = ContactList()
-        private val filename = "contactlist.serialized"
-
-        init {
-            loadContacts()
-        }
-
-        fun findContactFromName(name: String): Contact? {
-            return contactList.findContactFromName(name)
-        }
-
-        fun saveContact(name: String): Contact? {
-            val found = findContactFromName(name)
-            if (found != null) {
-                return found
-            } else {
-                val newContact = Contact(name = name)
-                contactList.addContact(newContact)
-                save()
-                return newContact
-            }
-        }
-
-        fun getContacts(): List<Contact> {
-            return contactList.contacts
-        }
-
-        private fun save() {
-            try {
-                val fos = context.openFileOutput(filename, Application.MODE_PRIVATE)
-                val oos = ObjectOutputStream(fos)
-                oos.writeObject(contactList)
-                oos.close()
-                fos.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        private fun loadContacts() {
-            try {
-                val fis = context.openFileInput(filename)
-                val ois = ObjectInputStream(fis)
-                contactList = ois.readObject() as ContactList
-                ois.close()
-                fis.close()
-            } catch (e: Exception) {
-                contactList = ContactList()
-            }
         }
     }
 }

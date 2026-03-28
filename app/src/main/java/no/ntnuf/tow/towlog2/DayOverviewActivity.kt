@@ -23,12 +23,17 @@ import android.widget.RelativeLayout
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -39,6 +44,7 @@ import java.io.ObjectOutputStream
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Date
+import no.ntnuf.tow.towlog2.fiken.FikenApiClient
 import no.ntnuf.tow.towlog2.model.Contact
 import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.model.DayLog
@@ -140,6 +146,13 @@ class DayOverviewActivity : AppCompatActivity() {
 
         // Alert dialog for fiken contact loading
         loadfikencontactsdialog = getLoadFikenContactsAlertDialog()
+
+        // Keep legacy behavior: ignore physical/gesture back in this screen.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.e("DATOVERVIEW", "onBackPressed() called")
+            }
+        })
 
     }
 
@@ -244,13 +257,7 @@ class DayOverviewActivity : AppCompatActivity() {
 
             // Load lists of contacts from Fiken accounting program
             R.id.menu_loadfikencontacts -> {
-                // TODO: Implement FikenContactRequestTask
-                // val fikenRequest = FikenContactRequestTask()
-                // fikenRequest.setContext(this)
-                // fikenRequest.setDialog(loadfikencontactsdialog)
-                // fikenRequest.setContactListManager(ContactListManager(this))
-                // fikenRequest.execute()
-                Snackbar.make(tableLayout, "Fiken integration coming soon", Snackbar.LENGTH_LONG).show()
+                loadFikenContactsFromMenu()
                 return true
             }
 
@@ -398,6 +405,36 @@ class DayOverviewActivity : AppCompatActivity() {
         builder.setTitle("Load Contacts from Fiken")
         builder.setMessage("Connecting to Fiken...")
         return builder.create()
+    }
+
+    private fun loadFikenContactsFromMenu() {
+        loadfikencontactsdialog.show()
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                val apiClient = FikenApiClient(settings)
+                apiClient.loadContacts().fold(
+                    onSuccess = { contacts ->
+                        ContactListManager(this@DayOverviewActivity).setContacts(contacts)
+                        Result.success(contacts.size)
+                    },
+                    onFailure = { Result.failure(it) }
+                )
+            }
+
+            if (loadfikencontactsdialog.isShowing) {
+                loadfikencontactsdialog.dismiss()
+            }
+
+            result.fold(
+                onSuccess = { count ->
+                    Snackbar.make(tableLayout, "Loaded contacts ($count)", Snackbar.LENGTH_LONG).show()
+                },
+                onFailure = {
+                    Snackbar.make(tableLayout, "Failed to load contacts", Snackbar.LENGTH_LONG).show()
+                }
+            )
+        }
     }
 
     // Return towentry from the started activity (only for tow activity results, type 0)
@@ -672,25 +709,6 @@ class DayOverviewActivity : AppCompatActivity() {
         Log.e("DAYOVERVIEW", "onPause() called")
     }
 
-    // Ignore on back pressed, do not do anything with it
-    override fun onBackPressed() {
-        Log.e("DATOVERVIEW", "onBackPressed() called")
-
-        if (true)
-            return
-
-        // Old code:
-        // Override on back pressed, close the whole app immediately instead of going to the main activity
-
-        // Build response Intent
-        val response = Intent()
-        val bundle = Bundle()
-
-        bundle.putSerializable("action", "backbutton")
-        response.putExtras(bundle)
-        setResult(Activity.RESULT_OK, response)
-        finish()
-    }
 
     // Delete the day log
     private fun deleteDayLog(): Boolean {

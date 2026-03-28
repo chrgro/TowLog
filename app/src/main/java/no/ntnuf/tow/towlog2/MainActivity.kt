@@ -10,7 +10,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import no.ntnuf.tow.towlog2.ui.screens.MainScreen
 import no.ntnuf.tow.towlog2.ui.theme.TowLogTheme
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
@@ -51,8 +53,12 @@ class MainActivity : ComponentActivity() {
                         showPreviousLogsDialog(viewModel)
                     },
                     onLoadFikenContacts = {
-                        Toast.makeText(this@MainActivity, "Load Fiken Contacts", Toast.LENGTH_SHORT).show()
-                        // Load contacts
+                        Toast.makeText(this@MainActivity, "Connecting to Fiken...", Toast.LENGTH_SHORT).show()
+                        lifecycleScope.launch {
+                            val result = viewModel.loadFikenContacts()
+                            val suffix = if (result.success) " (${result.count})" else ""
+                            Toast.makeText(this@MainActivity, result.message + suffix, Toast.LENGTH_LONG).show()
+                        }
                     },
                     onSettings = {
                         val intent = Intent(this@MainActivity, SettingsActivity::class.java)

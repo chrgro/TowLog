@@ -18,7 +18,7 @@ class ContactListManager(private val context: Context) {
         return contactList.findContactFromName(name)
     }
 
-    fun saveContact(name: String): Contact? {
+    fun saveContact(name: String): Contact {
         val found = findContactFromName(name)
         if (found != null) {
             return found
@@ -44,6 +44,12 @@ class ContactListManager(private val context: Context) {
         save()
     }
 
+    fun setContacts(contacts: List<Contact>) {
+        contactList.clear()
+        contacts.forEach { contactList.addContact(it) }
+        save()
+    }
+
     private fun save() {
         try {
             val fos = context.openFileOutput(filename, Context.MODE_PRIVATE)
@@ -63,7 +69,7 @@ class ContactListManager(private val context: Context) {
             contactList = ois.readObject() as ContactList
             ois.close()
             fis.close()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             contactList = ContactList()
         }
     }
