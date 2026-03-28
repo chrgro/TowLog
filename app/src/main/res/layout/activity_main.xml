@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context="no.ntnuf.towlog.towlog2.main.MainActivity"
+    tools:context="no.ntnuf.tow.towlog2.MainActivity"
     android:rowCount="3"
     android:columnCount="3">
 

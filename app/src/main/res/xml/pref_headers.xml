@@ -3,17 +3,17 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="no.ntnuf.tow.towlog2.SettingsActivity$GeneralPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="General settings" />
 
     <header
-        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$GPSPreferenceFragment"
+        android:fragment="no.ntnuf.tow.towlog2.SettingsActivity$GPSPreferenceFragment"
         android:icon="@mipmap/ic_gps_location"
         android:title="GPS settings" />
 
     <header
-        android:fragment="no.ntnuf.towlog.towlog2.main.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="no.ntnuf.tow.towlog2.SettingsActivity$DataSyncPreferenceFragment"
         android:icon="@drawable/ic_sync_black_24dp"
         android:title="Fiken eAccounting sync" />
 
