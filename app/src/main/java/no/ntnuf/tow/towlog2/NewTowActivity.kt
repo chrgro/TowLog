@@ -1,25 +1,23 @@
 package no.ntnuf.tow.towlog2
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
 import android.view.WindowManager
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import no.ntnuf.tow.towlog2.model.Contact
 import no.ntnuf.tow.towlog2.model.ContactListManager
@@ -27,6 +25,7 @@ import no.ntnuf.tow.towlog2.model.RegistrationList
 import no.ntnuf.tow.towlog2.model.TowEntry
 import java.util.Date
 
+@Suppress("DEPRECATION")
 class NewTowActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var pilotIn: AutoCompleteTextView
@@ -118,7 +117,7 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
         // Set up notes input
         notesIn = findViewById(R.id.notesIn)
-        notesIn.setOnFocusChangeListener { v, hasFocus ->
+        notesIn.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 notesIn.showDropDown()
             }
@@ -170,10 +169,10 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
         // Set up a GPS location listener on this screen, to aquire GPS signals
         // faster when we actually need them in the next activity
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0f, this)
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             Log.e("NEWTOW", "Location permission not granted")
         }
     }
@@ -210,6 +209,7 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         // indicate if the GPS is connected or not
     }
 
+    @Deprecated("Deprecated in LocationListener")
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 
     override fun onProviderEnabled(provider: String) {}

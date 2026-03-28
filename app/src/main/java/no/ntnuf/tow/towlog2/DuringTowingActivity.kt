@@ -1,14 +1,11 @@
 package no.ntnuf.tow.towlog2
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -16,12 +13,15 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.preference.PreferenceManager
 import no.ntnuf.tow.towlog2.model.TowEntry
 import java.util.Date
 
+@Suppress("DEPRECATION")
 class DuringTowingActivity : AppCompatActivity() {
 
     private var adjustedHeight = 0
@@ -48,10 +48,6 @@ class DuringTowingActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private lateinit var context: Context
-
-    private val GPS_REFRESH_RATE = 2000
-
     private lateinit var seekBarLock: SeekBar
 
     private var forceToggleTowModeCounter = 0
@@ -67,25 +63,25 @@ class DuringTowingActivity : AppCompatActivity() {
         return runningHeight
     }
 
+    @Suppress("unused")
     // This is called by GPS location handler to update the height during pre-tow
     fun updateTaxiHeight(height: Int, auxdata: Int) {
         handler.post {
-            infoTextView.text = "Ready, ${height}m MSL, ${auxdata} m/s"
+            infoTextView.text = getString(R.string.during_tow_ready, height, auxdata)
         }
     }
 
+    @Suppress("unused")
     // This is called by GPS location handler to update the height during towing
     fun updateRunningHeight(towheight: Int) {
         runningHeight = towheight
         handler.post {
-            towHeightView.text = "${towheight}m"
-            infoTextView.text = "Towing, max height"
-        }
-        if (towentry.towStarted == null) {
-            towentry = towentry.copy(towStarted = Date())
+            towHeightView.text = getString(R.string.during_tow_height_m, towheight)
+            infoTextView.text = getString(R.string.during_tow_towing_max_height)
         }
     }
 
+    @Suppress("unused")
     // Print debug info from GPS handler
     fun updateDebugInfo(info: String) {
         handler.post {
@@ -108,11 +104,8 @@ class DuringTowingActivity : AppCompatActivity() {
             adjustedHeight = 0
         }
 
-        towHeightView.text = "${adjustedHeight}m"
+        towHeightView.text = getString(R.string.during_tow_height_m, adjustedHeight)
 
-        if (towentry.towStarted == null) {
-            towentry = towentry.copy(towStarted = Date())
-        }
     }
 
     private fun lockButtons(lock: Boolean) {
@@ -121,14 +114,14 @@ class DuringTowingActivity : AppCompatActivity() {
         if (lock) {
             // Locked buttons
             releaseButton.isEnabled = false
-            releaseButton.text = "Slide to unlock"
+            releaseButton.text = getString(R.string.during_tow_slide_to_unlock)
 
             // Color buttons as disabled
             abortTowButton.alpha = 0.5f
         } else {
             // Unlocked buttons
             releaseButton.isEnabled = true
-            releaseButton.text = "Release"
+            releaseButton.text = getString(R.string.during_tow_release)
 
             abortTowButton.alpha = 1.0f
 
@@ -156,8 +149,6 @@ class DuringTowingActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_during_towing)
 
-        context = this
-
         toolbar = findViewById(R.id.toolbarduringtowing)
         setSupportActionBar(toolbar)
 
@@ -173,6 +164,7 @@ class DuringTowingActivity : AppCompatActivity() {
                 if (forceDebugModeCounter >= 8) {
                     // TODO: Enable debug mode when GPSLocationHandler is implemented
                     // gpslocation.setDebugMode(true)
+                    forceDebugModeCounter = 0
                 }
             }
         }
@@ -225,21 +217,21 @@ class DuringTowingActivity : AppCompatActivity() {
 
             // Disable release button
             releaseButton.isEnabled = false
-            releaseButton.text = "Released"
+            releaseButton.text = getString(R.string.during_tow_released)
 
             // TODO: End towing when GPSLocationHandler is implemented
             // gpslocation.endTowing()
 
             confirmTowButton.visibility = View.VISIBLE
 
-            infoTextView.text = "GPS tow height ${adjustedHeight}m"
+            infoTextView.text = getString(R.string.during_tow_gps_height, adjustedHeight)
             updateFinishedHeight(0)
         }
 
         // Button to abort/go back
         abortTowButton = findViewById(R.id.abortTowButton)
         abortTowButton.setOnClickListener {
-            AlertDialog.Builder(context)
+            AlertDialog.Builder(this)
                     .setMessage("Are you sure you want to exit?")
                     .setCancelable(false)
                     .setPositiveButton("Yes") { _, _ ->
@@ -265,7 +257,7 @@ class DuringTowingActivity : AppCompatActivity() {
             // }
             bundle.putSerializable("value", towentry)
             response.putExtras(bundle)
-            setResult(Activity.RESULT_OK, response)
+            setResult(RESULT_OK, response)
 
             // End the activity
             finish()
@@ -289,7 +281,16 @@ class DuringTowingActivity : AppCompatActivity() {
         // Load the incoming tow info (name, registration etc)
         val intent = intent
         val bundle = intent.extras
-        towentry = bundle?.getSerializable("value") as TowEntry
+        val loadedTowEntry = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            bundle?.getSerializable("value", TowEntry::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            bundle?.getSerializable("value") as? TowEntry
+        }
+        towentry = loadedTowEntry ?: run {
+            finish()
+            return
+        }
 
         // Update the textviews
         pilotnameTextView.text = towentry.pilot.name
@@ -299,7 +300,7 @@ class DuringTowingActivity : AppCompatActivity() {
         // gpxgenerator = GPXGenerator(settings.getBoolean("tow_tracking_enabled", true))
 
         // GPS Init
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         // TODO: Initialize GPS location handler when GPSLocationHandler is implemented
         // gpslocation = GPSLocationHandler()
         // gpslocation.prepareTowing(this, this.settings)
@@ -307,6 +308,13 @@ class DuringTowingActivity : AppCompatActivity() {
         // gpslocation.setGPXGenerator(gpxgenerator)
 
         lockButtons(true)
+
+        // Keep legacy behavior: ignore physical/gesture back in this screen.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Intentionally ignored to avoid accidental abort while towing.
+            }
+        })
     }
 
     override fun onResume() {
@@ -332,8 +340,4 @@ class DuringTowingActivity : AppCompatActivity() {
         // locationManager.removeUpdates(gpslocation)
     }
 
-    // Override the back button to not do anything
-    override fun onBackPressed() {
-        // Do nothing - prevent accidental back press during towing
-    }
 }

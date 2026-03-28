@@ -1,21 +1,17 @@
 package no.ntnuf.tow.towlog2
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
-import android.preference.Preference
 import android.preference.PreferenceActivity
 import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
+import android.preference.PreferenceActivity.Header
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
 import android.view.WindowManager
-import no.ntnuf.tow.towlog2.R
 
+@Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 class SettingsActivity : PreferenceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +36,7 @@ class SettingsActivity : PreferenceActivity() {
         return isXLargeTablet(this)
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    override fun onBuildHeaders(target: List<PreferenceActivity.Header>) {
+    override fun onBuildHeaders(target: List<Header>) {
         loadHeadersFromResource(R.xml.pref_headers, target)
     }
 
@@ -52,7 +47,6 @@ class SettingsActivity : PreferenceActivity() {
                 || GPSPreferenceFragment::class.java.name == fragmentName
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class GeneralPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -73,7 +67,6 @@ class SettingsActivity : PreferenceActivity() {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class GPSPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -91,7 +84,6 @@ class SettingsActivity : PreferenceActivity() {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class DataSyncPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -110,23 +102,9 @@ class SettingsActivity : PreferenceActivity() {
     }
 
     companion object {
-        private val sBindPreferenceSummaryToValueListener = Preference.OnPreferenceChangeListener { preference, value ->
-            val stringValue = value.toString()
-            preference.summary = stringValue
-            true
-        }
-
         private fun isXLargeTablet(context: Context): Boolean {
             val screenLayout = context.resources.configuration.screenLayout
             return screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_XLARGE
-        }
-
-        private fun bindPreferenceSummaryToValue(preference: Preference) {
-            preference.onPreferenceChangeListener = sBindPreferenceSummaryToValueListener
-            sBindPreferenceSummaryToValueListener.onPreferenceChange(
-                preference,
-                PreferenceManager.getDefaultSharedPreferences(preference.context).getString(preference.key, "")
-            )
         }
     }
 }

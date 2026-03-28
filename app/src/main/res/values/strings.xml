@@ -5,6 +5,14 @@
     <string name="default_log_email_address">nthf-styret@list.stud.ntnu.no</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="during_tow_ready">Ready, %1$dm MSL, %2$d m/s</string>
+    <string name="during_tow_towing_max_height">Towing, max height</string>
+    <string name="during_tow_height_m">%1$dm</string>
+    <string name="during_tow_slide_to_unlock">Slide to unlock</string>
+    <string name="during_tow_release">Release</string>
+    <string name="during_tow_released">Released</string>
+    <string name="during_tow_gps_height">GPS tow height %1$dm</string>
+
 
 
 </resources>

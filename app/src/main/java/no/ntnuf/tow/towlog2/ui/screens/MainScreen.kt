@@ -6,8 +6,8 @@ import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("DEPRECATION")
 @Composable
 fun MainScreen(
     viewModel: TowingViewModel = viewModel(),
@@ -52,7 +53,7 @@ fun MainScreen(
                 title = { Text("Prepare Towing") },
                 actions = {
                     IconButton(onClick = onShowLogs) {
-                        Icon(Icons.Default.List, contentDescription = "Show Logs")
+                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Show Logs")
                     }
                     IconButton(onClick = onLoadFikenContacts) {
                         Icon(Icons.Default.Refresh, contentDescription = "Load Fiken Contacts")
@@ -150,19 +151,23 @@ fun MainScreen(
         }
     }
 
-    if (showDatePicker) {
-        DatePickerDialog(
-            context,
-            { _: DatePicker, year: Int, month: Int, day: Int ->
-                val newDate = Calendar.getInstance().apply {
-                    set(year, month, day)
-                }.time
-                viewModel.updateSelectedDate(newDate)
-                showDatePicker = false
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+    LaunchedEffect(showDatePicker) {
+        if (showDatePicker) {
+            DatePickerDialog(
+                context,
+                { _: DatePicker, year: Int, month: Int, day: Int ->
+                    val newDate = Calendar.getInstance().apply {
+                        set(year, month, day)
+                    }.time
+                    viewModel.updateSelectedDate(newDate)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).apply {
+                setOnDismissListener { showDatePicker = false }
+                show()
+            }
+        }
     }
 }
