@@ -1,12 +1,9 @@
 package no.ntnuf.tow.towlog2
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -15,7 +12,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -27,7 +23,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -35,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -44,6 +38,7 @@ import java.io.ObjectOutputStream
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Date
+import java.util.Locale
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient
 import no.ntnuf.tow.towlog2.model.Contact
 import no.ntnuf.tow.towlog2.model.ContactListManager
@@ -61,7 +56,6 @@ class DayOverviewActivity : AppCompatActivity() {
     private lateinit var floatingactionbutton: FloatingActionButton
 
     private val dayLogFileName = "daylog_"
-    private var daylogsuffix = ""
 
     private var menu: Menu? = null
 
@@ -92,11 +86,11 @@ class DayOverviewActivity : AppCompatActivity() {
         // Tow pilot and plane are optional (only needed for new logs)
         val towpilot = bundle.getSerializable("towpilot") as Contact?
         val towplane = bundle.getSerializable("towplane") as String?
-        val outdf = SimpleDateFormat("cccc d/M")
+        val outdf = SimpleDateFormat("cccc d/M", Locale.getDefault())
         val strdate = outdf.format(date)
 
         toolbar = findViewById(R.id.toolbardayoverview)
-        val toolbartitle = "Day Log" + "  -  " + strdate
+        val toolbartitle = "Day Log  -  $strdate"
         toolbar.title = toolbartitle
         setSupportActionBar(toolbar)
 
@@ -135,7 +129,6 @@ class DayOverviewActivity : AppCompatActivity() {
         }
 
         // Add a connectivity listener, waiting for when we get internet connection back
-        val context = this
         // TODO: Implement network connectivity monitoring
         // val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         // cm.addDefaultNetworkActiveListener {
@@ -167,9 +160,9 @@ class DayOverviewActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.dayoverview_menu, menu)
 
         floatingactionbutton.visibility = if (daylog?.logIsLocked == true) View.INVISIBLE else View.VISIBLE
-        menu?.findItem(R.id.menu_reenablelog)?.isVisible = daylog?.logIsLocked == true
-        menu?.findItem(R.id.menu_editlog)?.isVisible = daylog?.logIsLocked != true
-        menu?.findItem(R.id.menu_deletedaylog)?.isVisible = daylog?.logIsLocked != true
+        menu.findItem(R.id.menu_reenablelog).isVisible = daylog?.logIsLocked == true
+        menu.findItem(R.id.menu_editlog).isVisible = daylog?.logIsLocked != true
+        menu.findItem(R.id.menu_deletedaylog).isVisible = daylog?.logIsLocked != true
 
         return true
     }
@@ -296,7 +289,7 @@ class DayOverviewActivity : AppCompatActivity() {
 
                 bundle.putSerializable("action", "backtocalendarmenu")
                 response.putExtras(bundle)
-                setResult(Activity.RESULT_OK, response)
+                setResult(RESULT_OK, response)
                 finish()
                 return true
             }
@@ -311,6 +304,7 @@ class DayOverviewActivity : AppCompatActivity() {
     fun sendLog() {
         // Pack up and send the logs
         if (settings.getBoolean("upload_log_enabled", false)) {
+            Log.e("DAYOVERVIEW", "Log upload is enabled, but uploader is not implemented yet")
             // TODO: Implement LogUploader
             // val uploader = LogUploader(this, settings)
             // uploader.addToUploadQueue(daylog!!)
@@ -321,12 +315,16 @@ class DayOverviewActivity : AppCompatActivity() {
 
     // Send logfile using email (create intent and send off to email application)
     fun sendLogViaEmail() {
+        val currentDaylog = daylog ?: run {
+            Log.e("DAYOVERVIEW", "No day log available for email")
+            return
+        }
 
-        val outdf = SimpleDateFormat("cccc d/M/yyyy")
-        val dstr = outdf.format(daylog?.date)
+        val outdf = SimpleDateFormat("cccc d/M/yyyy", Locale.getDefault())
+        val dstr = outdf.format(currentDaylog.date)
 
-        val df_file = SimpleDateFormat("yyyy_M_d")
-        val d_file = df_file.format(daylog?.date)
+        val df_file = SimpleDateFormat("yyyy_M_d", Locale.getDefault())
+        val d_file = df_file.format(currentDaylog.date)
 
         val towlogfilename = "towlog_" + d_file + ".html"
         val receiver_email = settings.getString("send_log_email", "")
@@ -337,12 +335,9 @@ class DayOverviewActivity : AppCompatActivity() {
             val towlogfile = File(dir, towlogfilename)
             towlogfile.createNewFile()
             val fios = FileOutputStream(towlogfile)
-            
-            val currentDaylog = daylog
-            if (currentDaylog != null) {
-                val htmlContent = currentDaylog.csv2Html(currentDaylog.getCsvOutput())
-                fios.write(htmlContent.toByteArray())
-            }
+
+            val htmlContent = currentDaylog.csv2Html(currentDaylog.getCsvOutput())
+            fios.write(htmlContent.toByteArray())
             fios.close()
 
             // Then add that HTML file as an attachment to the email
@@ -354,17 +349,16 @@ class DayOverviewActivity : AppCompatActivity() {
             emailintent.putExtra(Intent.EXTRA_EMAIL, arrayOf(receiver_email))
             emailintent.putExtra(Intent.EXTRA_SUBJECT, "Tow Log for $dstr")
             emailintent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
-            emailintent.putExtra(Intent.EXTRA_TEXT, daylog?.getCsvOutput())
+            emailintent.putExtra(Intent.EXTRA_TEXT, currentDaylog.getCsvOutput())
 
             // If this setting is enabled, add all the emails to pilots to the BCC
             // list of the email
             if (settings.getBoolean("send_log_to_customers", false)) {
                 val customerlist = ArrayList<String>()
-                val currentDaylog = daylog
-                if (currentDaylog?.towpilot?.email != null) {
+                if (currentDaylog.towpilot.email != null) {
                     customerlist.add(currentDaylog.towpilot.email)
                 }
-                for (t in currentDaylog?.tows ?: emptyList()) {
+                for (t in currentDaylog.tows) {
                     val pilotEmail = t.pilot.email
                     if (pilotEmail != null) {
                         customerlist.add(pilotEmail)
@@ -524,7 +518,7 @@ class DayOverviewActivity : AppCompatActivity() {
 
         val regandbuttons = RelativeLayout(this)
         val myparam = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.FILL_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT)
         regandbuttons.layoutParams = myparam
         regandbuttons.addView(ttreg)
@@ -603,13 +597,13 @@ class DayOverviewActivity : AppCompatActivity() {
         heightAndTime.orientation = LinearLayout.VERTICAL
 
         val height = TextView(this)
-        height.text = tow.height.toString() + "m"
+        height.text = "${tow.height}m"
         height.setTextSize(textsize)
         height.setPadding(0, 0, 5, 0)
         heightAndTime.addView(height)
 
         val time = TextView(this)
-        val outdf = SimpleDateFormat("HH:mm")
+        val outdf = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dstr = outdf.format(tow.towStarted)
         time.text = dstr
         time.setTextSize(textsize)
@@ -621,7 +615,6 @@ class DayOverviewActivity : AppCompatActivity() {
         return tr
     }
 
-    private var rememberMe: View? = null
 
     private fun refreshTowTable() {
         // Clear everything except the header row
@@ -649,7 +642,7 @@ class DayOverviewActivity : AppCompatActivity() {
     // Load the day log from a file
     private fun loadDayLog(date: Date): Boolean {
         var loadedSuccessfully = false
-        val outdf = SimpleDateFormat("yyyy_MM_dd")
+        val outdf = SimpleDateFormat("yyyy_MM_dd", Locale.getDefault())
         val daylogsuffix = outdf.format(date)
         val fullfilename = dayLogFileName + daylogsuffix
         try {
