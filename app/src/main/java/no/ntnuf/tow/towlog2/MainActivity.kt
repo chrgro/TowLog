@@ -1,5 +1,6 @@
 package no.ntnuf.tow.towlog2
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -20,24 +21,26 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     viewModel = viewModel,
                     onStartNewDay = { bundle ->
-                        Toast.makeText(this, "Start New Day", Toast.LENGTH_SHORT).show()
-                        // Navigate to DayOverviewActivity with bundle
+                        val intent = Intent(this@MainActivity, DayOverviewActivity::class.java)
+                        bundle?.let { intent.putExtras(it) }
+                        startActivity(intent)
                     },
                     onResumeDay = { bundle ->
-                        Toast.makeText(this, "Resume Day", Toast.LENGTH_SHORT).show()
-                        // Navigate to DayOverviewActivity with bundle
+                        val intent = Intent(this@MainActivity, DayOverviewActivity::class.java)
+                        bundle?.let { intent.putExtras(it) }
+                        startActivity(intent)
                     },
                     onShowLogs = {
-                        Toast.makeText(this, "Show Logs", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Show Logs", Toast.LENGTH_SHORT).show()
                         // Show logs dialog
                     },
                     onLoadFikenContacts = {
-                        Toast.makeText(this, "Load Fiken Contacts", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Load Fiken Contacts", Toast.LENGTH_SHORT).show()
                         // Load contacts
                     },
                     onSettings = {
-                        Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
-                        // Navigate to SettingsActivity
+                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                        startActivity(intent)
                     }
                 )
             }

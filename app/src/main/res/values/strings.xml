@@ -1,3 +1,10 @@
 <resources>
+    <!-- Strings related to Settings -->
     <string name="app_name">Tow Log</string>
+
+    <string name="default_log_email_address">nthf-styret@list.stud.ntnu.no</string>
+    <string name="title_activity_settings">Settings</string>
+
+
+
 </resources>
