@@ -29,7 +29,8 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:label="Settings" />
+            android:label="Settings"
+            android:theme="@style/Theme.TowLog.Settings" />
         <activity
             android:name=".DayOverviewActivity"
             android:exported="false"

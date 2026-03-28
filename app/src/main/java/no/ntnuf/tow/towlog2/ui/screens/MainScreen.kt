@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import no.ntnuf.tow.towlog2.R
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,6 +53,11 @@ fun MainScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Prepare Towing") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(id = R.color.colorPrimary),
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                ),
                 actions = {
                     IconButton(onClick = onShowLogs) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Show Logs")

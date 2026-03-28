@@ -26,10 +26,7 @@ class SettingsActivity : PreferenceActivity() {
     }
 
     private fun setupActionBar() {
-        // ActionBar actionBar = getSupportActionBar();
-        // if (actionBar != null) {
-        //     actionBar.setDisplayHomeAsUpEnabled(true);
-        // }
+        actionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun isMultiPane(): Boolean {
