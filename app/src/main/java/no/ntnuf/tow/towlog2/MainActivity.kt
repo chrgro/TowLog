@@ -115,13 +115,14 @@ class MainActivity : ComponentActivity() {
 
     private fun formatDayLogNameForDisplay(fileName: String, suffix: String): String {
         val parser = SimpleDateFormat("yyyy_MM_dd", Locale.ENGLISH)
-        val formatter = SimpleDateFormat("EEEE d/M/yyyy", Locale.getDefault())
+        val isoDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val weekdayFormatter = SimpleDateFormat("EEEE", Locale.getDefault())
         return try {
             val parsed = parser.parse(suffix)
             if (parsed == null) {
                 "Parse error, name: $fileName"
             } else {
-                formatter.format(parsed)
+                "${isoDateFormatter.format(parsed)} (${weekdayFormatter.format(parsed)})"
             }
         } catch (_: Exception) {
             "Parse error, name: $fileName"
