@@ -36,7 +36,7 @@ data class DayLog(
 
     // Format the daylog to CSV
     fun getCsvOutput(): String {
-        val outdf = SimpleDateFormat("cccc d/M/yyyy")
+        val outdf = SimpleDateFormat("yyyy-MM-dd")
         val time = SimpleDateFormat("HH:mm")
 
         var ret = "Towing log: \n\n\n"

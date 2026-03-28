@@ -110,7 +110,7 @@ class DayOverviewActivity : AppCompatActivity() {
         // Tow pilot and plane are optional (only needed for new logs)
         val towpilot = bundle.getSerializable("towpilot") as Contact?
         val towplane = bundle.getSerializable("towplane") as String?
-        val outdf = SimpleDateFormat("cccc d/M", Locale.getDefault())
+        val outdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         val strdate = outdf.format(date)
 
         toolbar = findViewById(R.id.toolbardayoverview)
@@ -346,13 +346,13 @@ class DayOverviewActivity : AppCompatActivity() {
             return
         }
 
-        val outdf = SimpleDateFormat("cccc d/M/yyyy", Locale.getDefault())
+        val outdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         val dstr = outdf.format(currentDaylog.date)
 
-        val df_file = SimpleDateFormat("yyyy_M_d", Locale.getDefault())
-        val d_file = df_file.format(currentDaylog.date)
+        val dfFile = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val dFile = dfFile.format(currentDaylog.date)
 
-        val towlogfilename = "towlog_" + d_file + ".html"
+        val towlogfilename = "towlog_" + dFile + ".html"
         val receiver_email = settings.getString("send_log_email", "")
 
         try {
