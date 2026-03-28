@@ -116,10 +116,8 @@ class DayOverviewActivity : AppCompatActivity() {
         // Button to add new tow activity
         floatingactionbutton = findViewById(R.id.fab)
         floatingactionbutton.setOnClickListener {
-            // TODO: Implement NewTowActivity
-            // val intent = Intent(this@DayOverviewActivity, NewTowActivity::class.java)
-            // startActivityForResult(intent, 1)
-            Snackbar.make(tableLayout, "New Tow feature coming soon", Snackbar.LENGTH_LONG).show()
+            val intent = Intent(this@DayOverviewActivity, NewTowActivity::class.java)
+            startActivityForResult(intent, 1)
         }
 
         // Add a connectivity listener, waiting for when we get internet connection back

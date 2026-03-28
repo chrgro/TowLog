@@ -148,14 +148,11 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
             )
 
             // Bundle the data and start the next activity, DuringTowing
-            // TODO: Implement DuringTowingActivity
-            // val intent = Intent(this@NewTowActivity, DuringTowingActivity::class.java)
-            // val bundle = Bundle()
-            // bundle.putSerializable("value", towentry)
-            // intent.putExtras(bundle)
-            // startActivityForResult(intent, 1)
-            
-            Toast.makeText(this@NewTowActivity, "DuringTowingActivity not yet implemented", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@NewTowActivity, DuringTowingActivity::class.java)
+            val bundle = Bundle()
+            bundle.putSerializable("value", towentry)
+            intent.putExtras(bundle)
+            startActivityForResult(intent, 1)
         }
     }
 

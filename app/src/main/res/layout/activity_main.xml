@@ -7,7 +7,7 @@
     android:rowCount="3"
     android:columnCount="3">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarmain"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"

@@ -6,7 +6,7 @@
     android:background="@color/background"
     tools:context="no.ntnuf.towlog.towlog2.newtow.NewTowActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarnewtow"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -138,7 +138,7 @@
                 android:layout_alignParentStart="true"
                 android:capitalize="sentences" />
 
-            <android.support.design.widget.FloatingActionButton android:id="@+id/startTowButton"
+            <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/startTowButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
