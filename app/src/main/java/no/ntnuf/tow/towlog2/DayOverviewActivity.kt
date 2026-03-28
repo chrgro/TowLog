@@ -15,6 +15,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -62,6 +64,12 @@ class DayOverviewActivity : AppCompatActivity() {
     private lateinit var settings: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Set fullscreen
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_day_overview)
 

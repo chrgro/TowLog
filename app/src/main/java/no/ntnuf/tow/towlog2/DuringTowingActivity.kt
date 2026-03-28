@@ -145,6 +145,11 @@ class DuringTowingActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
+        // Hide navigation bar
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+
         settings = PreferenceManager.getDefaultSharedPreferences(this)
         towing_altitude_increments = settings.getString("towing_altitude_increments", "100")?.toIntOrNull() ?: 100
         towing_round_up_limit = settings.getString("towing_round_up_limit", "35")?.toIntOrNull() ?: 35
@@ -332,4 +337,3 @@ class DuringTowingActivity : AppCompatActivity() {
         // Do nothing - prevent accidental back press during towing
     }
 }
-

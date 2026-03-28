@@ -12,6 +12,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.Toast
@@ -46,6 +49,12 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
     private lateinit var locationManager: LocationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Set fullscreen
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_tow)
 
@@ -207,6 +216,3 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
     override fun onProviderDisabled(provider: String) {}
 }
-
-
-
