@@ -6,7 +6,6 @@ import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Refresh
@@ -106,13 +105,15 @@ fun MainScreen(
                 }
             }
 
-            // Checkmark for tow pilot
+            // Show a success indicator only when the selected pilot has an account.
             selectedTowPilot?.let { pilot ->
-                Icon(
-                    if (pilot.hasAccount) Icons.Default.CheckCircle else Icons.Default.AddCircle,
-                    contentDescription = null,
-                    tint = if (pilot.hasAccount) Color.Green else Color.Blue
-                )
+                if (pilot.hasAccount) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color.Green
+                    )
+                }
             }
 
             // Tow Plane
