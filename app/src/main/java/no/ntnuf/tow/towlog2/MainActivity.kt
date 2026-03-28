@@ -1,17 +1,14 @@
 package no.ntnuf.tow.towlog2
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import no.ntnuf.tow.towlog2.ui.screens.MainScreen
 import no.ntnuf.tow.towlog2.ui.theme.TowLogTheme
+import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +16,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TowLogTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                val viewModel: TowingViewModel = viewModel()
+                MainScreen(
+                    viewModel = viewModel,
+                    onStartNewDay = { bundle ->
+                        Toast.makeText(this, "Start New Day", Toast.LENGTH_SHORT).show()
+                        // Navigate to DayOverviewActivity with bundle
+                    },
+                    onResumeDay = { bundle ->
+                        Toast.makeText(this, "Resume Day", Toast.LENGTH_SHORT).show()
+                        // Navigate to DayOverviewActivity with bundle
+                    },
+                    onShowLogs = {
+                        Toast.makeText(this, "Show Logs", Toast.LENGTH_SHORT).show()
+                        // Show logs dialog
+                    },
+                    onLoadFikenContacts = {
+                        Toast.makeText(this, "Load Fiken Contacts", Toast.LENGTH_SHORT).show()
+                        // Load contacts
+                    },
+                    onSettings = {
+                        Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
+                        // Navigate to SettingsActivity
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TowLogTheme {
-        Greeting("Android")
     }
 }
