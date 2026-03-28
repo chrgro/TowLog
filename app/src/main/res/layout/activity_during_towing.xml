@@ -34,7 +34,8 @@
             android:padding="10dp"
             android:id="@+id/abortTowButton"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="#FF0000" />
 
         <Button
             android:layout_width="wrap_content"
@@ -44,7 +45,8 @@
             android:padding="10dp"
             android:id="@+id/confirmTowButton"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="#00E600" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -120,7 +122,8 @@
                 android:textSize="@dimen/duringtowing_textsize_button"
                 android:id="@+id/releaseButton"
                 android:layout_below="@+id/currentHeight"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+                android:backgroundTint="#E6E600" />
 
             <Button
                 android:layout_width="55dp"
