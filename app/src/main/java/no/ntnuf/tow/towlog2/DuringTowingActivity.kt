@@ -1,7 +1,9 @@
 package no.ntnuf.tow.towlog2
 
+import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
@@ -18,9 +20,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
+import no.ntnuf.tow.towlog2.gps.GpsTowingCallbacks
+import no.ntnuf.tow.towlog2.gps.GpsTowingTracker
+import no.ntnuf.tow.towlog2.gps.GpxTrackWriter
 import no.ntnuf.tow.towlog2.model.TowEntry
 import java.util.Date
 
@@ -48,6 +54,9 @@ class DuringTowingActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
 
     private lateinit var locationManager: LocationManager
+    private lateinit var gpsTracker: GpsTowingTracker
+    private lateinit var gpxTrackWriter: GpxTrackWriter
+    private var locationUpdatesRequested = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -187,8 +196,7 @@ class DuringTowingActivity : AppCompatActivity() {
                 forceDebugModeCounter = 0
             } else {
                 if (forceDebugModeCounter >= 8) {
-                    // TODO: Enable debug mode when GPSLocationHandler is implemented
-                    // gpslocation.setDebugMode(true)
+                    gpsTracker.setDebugMode(true)
                     forceDebugModeCounter = 0
                 }
             }
@@ -204,8 +212,7 @@ class DuringTowingActivity : AppCompatActivity() {
                 forceToggleTowModeCounter = 0
             } else {
                 if (forceToggleTowModeCounter >= 6) {
-                    // TODO: Toggle tow mode when GPSLocationHandler is implemented
-                    // gpslocation.forceToggleTowMode()
+                    gpsTracker.forceToggleTowMode()
                     forceToggleTowModeCounter = 0
                 }
             }
@@ -244,8 +251,7 @@ class DuringTowingActivity : AppCompatActivity() {
             releaseButton.isEnabled = false
             releaseButton.text = getString(R.string.during_tow_released)
 
-            // TODO: End towing when GPSLocationHandler is implemented
-            // gpslocation.endTowing()
+            gpsTracker.endTowing()
 
             confirmTowButton.visibility = View.VISIBLE
 
@@ -277,11 +283,10 @@ class DuringTowingActivity : AppCompatActivity() {
             val bundle = Bundle()
 
             towentry = towentry.copy(height = adjustedHeight)
-            // TODO: Add GPX body when GPXGenerator is implemented
-            // if (gpxgenerator.isEnabled()) {
-            //     towentry.gpx_body = gpxgenerator.getTrack()
-            //     Log.e("DURINGTOW", "Finished tow GPX track with ${gpxgenerator.getNumPoints()} points")
-            // }
+            if (gpxTrackWriter.isEnabled()) {
+                towentry = towentry.copy(gpx_body = gpxTrackWriter.getTrack())
+                Log.e("DURINGTOW", "Finished tow GPX track with ${gpxTrackWriter.getNumPoints()} points")
+            }
             bundle.putSerializable("value", towentry)
             response.putExtras(bundle)
             setResult(RESULT_OK, response)
@@ -323,16 +328,27 @@ class DuringTowingActivity : AppCompatActivity() {
         pilotnameTextView.text = towentry.pilot.name
         registrationTextView.text = towentry.registration
 
-        // TODO: Set up GPS track to GPX logging when GPXGenerator is implemented
-        // gpxgenerator = GPXGenerator(settings.getBoolean("tow_tracking_enabled", true))
-
         // GPS Init
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        // TODO: Initialize GPS location handler when GPSLocationHandler is implemented
-        // gpslocation = GPSLocationHandler()
-        // gpslocation.prepareTowing(this, this.settings)
-        // gpslocation.setLocationManager(locationManager)
-        // gpslocation.setGPXGenerator(gpxgenerator)
+        gpxTrackWriter = GpxTrackWriter(settings.getBoolean("tow_tracking_enabled", true))
+
+        gpsTracker = GpsTowingTracker(
+            callbacks = object : GpsTowingCallbacks {
+                override fun updateTaxiHeight(height: Int, auxdata: Int) {
+                    this@DuringTowingActivity.updateTaxiHeight(height, auxdata)
+                }
+
+                override fun updateRunningHeight(towHeight: Int) {
+                    this@DuringTowingActivity.updateRunningHeight(towHeight)
+                }
+
+                override fun updateDebugInfo(info: String) {
+                    this@DuringTowingActivity.updateDebugInfo(info)
+                }
+            },
+            gpxTrackWriter = gpxTrackWriter
+        )
+        gpsTracker.prepareTowing(settings)
 
         lockButtons(true)
 
@@ -344,15 +360,51 @@ class DuringTowingActivity : AppCompatActivity() {
         })
     }
 
+    private fun hasLocationPermission(): Boolean {
+        val fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        return fineGranted || coarseGranted
+    }
+
     override fun onResume() {
         super.onResume()
-        // TODO: Request location updates when GPSLocationHandler is implemented
-        // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_REFRESH_RATE, 0f, gpslocation)
+        if (locationUpdatesRequested) {
+            return
+        }
+        if (!hasLocationPermission()) {
+            infoTextView.text = "Location permission missing"
+            return
+        }
+
+        try {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                GpsTowingTracker.GPS_REFRESH_RATE_MS,
+                0f,
+                gpsTracker,
+                Looper.getMainLooper()
+            )
+            locationUpdatesRequested = true
+        } catch (securityException: SecurityException) {
+            infoTextView.text = "Location permission missing"
+            Log.e("DURINGTOW", "Failed to request GPS updates", securityException)
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            infoTextView.text = "GPS provider unavailable"
+            Log.e("DURINGTOW", "GPS provider unavailable", illegalArgumentException)
+        }
     }
 
     override fun onPause() {
         super.onPause()
         Log.e("DURINGTOW", "onPause() called.")
+        if (locationUpdatesRequested) {
+            try {
+                locationManager.removeUpdates(gpsTracker)
+            } catch (securityException: SecurityException) {
+                Log.e("DURINGTOW", "Failed to remove GPS updates", securityException)
+            }
+            locationUpdatesRequested = false
+        }
     }
 
     override fun onStop() {
@@ -363,8 +415,14 @@ class DuringTowingActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.e("DURINGTOW", "onDestroy() called")
-        // TODO: Remove location updates when GPSLocationHandler is implemented
-        // locationManager.removeUpdates(gpslocation)
+        if (locationUpdatesRequested) {
+            try {
+                locationManager.removeUpdates(gpsTracker)
+            } catch (securityException: SecurityException) {
+                Log.e("DURINGTOW", "Failed to remove GPS updates", securityException)
+            }
+            locationUpdatesRequested = false
+        }
     }
 
 }

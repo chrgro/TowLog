@@ -1,12 +1,17 @@
 package no.ntnuf.tow.towlog2
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -22,6 +27,26 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val dayLogFileNamePrefix = "daylog_"
+    private val locationPermissions = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val granted = results.any { it.value }
+        if (!granted) {
+            val permanentlyDenied = locationPermissions.all { permission ->
+                !ActivityCompat.shouldShowRequestPermissionRationale(this, permission)
+            }
+            if (permanentlyDenied) {
+                showLocationPermissionPermanentlyDeniedDialog()
+            } else {
+                showLocationPermissionDeniedDialog()
+            }
+        }
+    }
 
     private data class AvailableDayLog(
         val fileNameSuffix: String,
@@ -67,6 +92,59 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        ensureLocationPermissionOnLaunch()
+    }
+
+    private fun ensureLocationPermissionOnLaunch() {
+        if (hasLocationPermission()) {
+            return
+        }
+
+        val shouldShowRationale = locationPermissions.any { permission ->
+            ActivityCompat.shouldShowRequestPermissionRationale(this, permission)
+        }
+
+        if (shouldShowRationale) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.location_permission_title))
+                .setMessage(getString(R.string.location_permission_rationale_message))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.location_permission_allow)) { _, _ ->
+                    locationPermissionLauncher.launch(locationPermissions)
+                }
+                .setNegativeButton(getString(R.string.location_permission_not_now), null)
+                .show()
+        } else {
+            locationPermissionLauncher.launch(locationPermissions)
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fineGranted || coarseGranted
+    }
+
+    private fun showLocationPermissionDeniedDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.location_permission_title))
+            .setMessage(getString(R.string.location_permission_denied_message))
+            .setPositiveButton(getString(R.string.location_permission_ok), null)
+            .show()
+    }
+
+    private fun showLocationPermissionPermanentlyDeniedDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.location_permission_title))
+            .setMessage(getString(R.string.location_permission_permanently_denied_message))
+            .setPositiveButton(getString(R.string.location_permission_ok), null)
+            .show()
     }
 
     private fun showPreviousLogsDialog(viewModel: TowingViewModel) {

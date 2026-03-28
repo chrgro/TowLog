@@ -13,6 +13,14 @@
     <string name="during_tow_released">Released</string>
     <string name="during_tow_gps_height">GPS tow height %1$dm</string>
 
+    <string name="location_permission_title">Location permission</string>
+    <string name="location_permission_rationale_message">TowLog needs location access to track towing altitude during flights.</string>
+    <string name="location_permission_denied_message">Location permission was denied. You can still browse the app, but towing altitude tracking will not work.</string>
+    <string name="location_permission_permanently_denied_message">Location permission is blocked. Enable location permission in system settings to use towing altitude tracking.</string>
+    <string name="location_permission_allow">Allow</string>
+    <string name="location_permission_not_now">Not now</string>
+    <string name="location_permission_ok">OK</string>
+
 
 
 </resources>
