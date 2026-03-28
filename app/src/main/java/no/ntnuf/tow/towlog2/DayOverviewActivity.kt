@@ -148,9 +148,9 @@ class DayOverviewActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.dayoverview_menu, menu)
 
         floatingactionbutton.visibility = if (daylog?.logIsLocked == true) View.INVISIBLE else View.VISIBLE
-        menu.findItem(R.id.menu_reenablelog).isVisible = daylog?.logIsLocked == true
-        menu.findItem(R.id.menu_editlog).isVisible = daylog?.logIsLocked != true
-        menu.findItem(R.id.menu_deletedaylog).isVisible = daylog?.logIsLocked != true
+        menu?.findItem(R.id.menu_reenablelog)?.isVisible = daylog?.logIsLocked == true
+        menu?.findItem(R.id.menu_editlog)?.isVisible = daylog?.logIsLocked != true
+        menu?.findItem(R.id.menu_deletedaylog)?.isVisible = daylog?.logIsLocked != true
 
         return true
     }
@@ -211,11 +211,11 @@ class DayOverviewActivity : AppCompatActivity() {
             // Edit the day log manually (move up down, delete)
             R.id.menu_editlog -> {
                 editMode = !editMode
-                val edit = menu.findItem(R.id.menu_editlog)
+                val edit = menu?.findItem(R.id.menu_editlog)
                 if (editMode) {
-                    edit.title = "Finish log editing"
+                    edit?.title = "Finish log editing"
                 } else {
-                    edit.title = "Manually edit log"
+                    edit?.title = "Manually edit log"
                 }
                 refreshTowTable()
                 return true

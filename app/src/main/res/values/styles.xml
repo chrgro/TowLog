@@ -40,7 +40,7 @@
     </style>
 
     <style name="OverFlowStyle" parent="Widget.AppCompat.ActionButton.Overflow">
-        <item name="android:src">@mipmap/menu_bars_icon</item>
+        <!-- Removed missing mipmap resource - Android provides default overflow icon -->
     </style>
 
 
