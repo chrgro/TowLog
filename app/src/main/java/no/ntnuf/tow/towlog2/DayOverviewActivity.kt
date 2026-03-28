@@ -23,6 +23,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -62,6 +64,28 @@ class DayOverviewActivity : AppCompatActivity() {
     private var editMode = false
 
     private lateinit var settings: SharedPreferences
+
+    private fun applySystemBarMarginsToBottomEnd(view: View) {
+        val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val initialBottom = marginLayoutParams.bottomMargin
+        val initialEnd = marginLayoutParams.marginEnd
+        val initialRight = marginLayoutParams.rightMargin
+        val extraBottomPx = (8 * resources.displayMetrics.density + 0.5f).toInt()
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { target, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val updated = target.layoutParams as? ViewGroup.MarginLayoutParams
+                    ?: return@setOnApplyWindowInsetsListener insets
+
+            updated.bottomMargin = initialBottom + systemBars.bottom + extraBottomPx
+            updated.marginEnd = initialEnd + systemBars.right
+            updated.rightMargin = initialRight + systemBars.right
+            target.layoutParams = updated
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(view)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set fullscreen
@@ -123,6 +147,8 @@ class DayOverviewActivity : AppCompatActivity() {
 
         // Button to add new tow activity
         floatingactionbutton = findViewById(R.id.fab)
+        // Keep the FAB clear of transient system navigation/back controls.
+        applySystemBarMarginsToBottomEnd(floatingactionbutton)
         floatingactionbutton.setOnClickListener {
             val intent = Intent(this@DayOverviewActivity, NewTowActivity::class.java)
             startActivityForResult(intent, 1)

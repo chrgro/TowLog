@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
@@ -17,6 +18,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
 import no.ntnuf.tow.towlog2.model.TowEntry
 import java.util.Date
@@ -128,6 +131,28 @@ class DuringTowingActivity : AppCompatActivity() {
             // Hide lockbar after unlocking
             seekBarLock.visibility = View.INVISIBLE
         }
+    }
+
+    private fun applySystemBarMarginsToBottomEnd(view: View) {
+        val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val initialBottom = marginLayoutParams.bottomMargin
+        val initialEnd = marginLayoutParams.marginEnd
+        val initialRight = marginLayoutParams.rightMargin
+        val extraBottomPx = (8 * resources.displayMetrics.density + 0.5f).toInt()
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { target, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val updated = target.layoutParams as? ViewGroup.MarginLayoutParams
+                    ?: return@setOnApplyWindowInsetsListener insets
+
+            updated.bottomMargin = initialBottom + systemBars.bottom + extraBottomPx
+            updated.marginEnd = initialEnd + systemBars.right
+            updated.rightMargin = initialRight + systemBars.right
+            target.layoutParams = updated
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(view)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -243,6 +268,8 @@ class DuringTowingActivity : AppCompatActivity() {
 
         // Confirm button shown after towing is completed
         confirmTowButton = findViewById(R.id.confirmTowButton)
+        // Keep the confirm action clear of transient system navigation/back controls.
+        applySystemBarMarginsToBottomEnd(confirmTowButton)
         confirmTowButton.visibility = View.INVISIBLE
         confirmTowButton.setOnClickListener {
             // Build response Intent
