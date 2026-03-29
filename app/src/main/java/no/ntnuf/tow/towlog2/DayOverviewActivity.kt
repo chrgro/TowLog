@@ -504,6 +504,7 @@ class DayOverviewActivity : AppCompatActivity() {
     // Helper function to add a tow row
     private fun addTowToTable(tow: TowEntry, townumber: Int): TableRow {
         val tr = TableRow(this)
+        val bodyTextColor = Color.BLACK
 
         // Scale *somewhat* correctly for different screen densities...
         val scale = resources.displayMetrics.density
@@ -513,6 +514,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val towno = TextView(this)
         towno.text = townumber.toString()
         towno.setTextSize(textsize)
+        towno.setTextColor(bodyTextColor)
         towno.setPadding(0, 0, 5, 0)
         tr.addView(towno)
 
@@ -520,17 +522,20 @@ class DayOverviewActivity : AppCompatActivity() {
         ttreg.text = tow.registration
         ttreg.setTypeface(null, Typeface.BOLD)
         ttreg.setTextSize(textsize)
+        ttreg.setTextColor(bodyTextColor)
         ttreg.setPadding(0, 0, 5, 0)
 
         val pilot = TextView(this)
         pilot.text = tow.pilot.name
         pilot.setTextSize(textsize)
+        pilot.setTextColor(bodyTextColor)
         pilot.setPadding(0, 0, 5, 0)
 
         val copilot = TextView(this)
         if (tow.copilot != null) {
             copilot.text = tow.copilot.name
             copilot.setTextSize(textsize)
+            copilot.setTextColor(bodyTextColor)
             copilot.setPadding(0, 0, 5, 0)
         }
 
@@ -538,6 +543,7 @@ class DayOverviewActivity : AppCompatActivity() {
         if (tow.notes != "") {
             notes.text = tow.notes
             notes.setTextSize(textsize)
+            notes.setTextColor(bodyTextColor)
             notes.setPadding(0, 0, 5, 0)
             notes.setTypeface(null, Typeface.ITALIC)
         }
@@ -625,6 +631,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val height = TextView(this)
         height.text = "${tow.height}m"
         height.setTextSize(textsize)
+        height.setTextColor(bodyTextColor)
         height.setPadding(0, 0, 5, 0)
         heightAndTime.addView(height)
 
@@ -633,6 +640,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val dstr = outdf.format(tow.towStarted)
         time.text = dstr
         time.setTextSize(textsize)
+        time.setTextColor(bodyTextColor)
         time.setPadding(0, 0, 5, 0)
         heightAndTime.addView(time)
 
