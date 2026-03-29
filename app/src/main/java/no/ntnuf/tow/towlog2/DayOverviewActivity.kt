@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -32,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient.FikenApiException
+import no.ntnuf.tow.towlog2.gps.GPXGenerator
 import org.json.JSONException
 import java.io.File
 import java.io.FileNotFoundException
@@ -68,6 +70,7 @@ class DayOverviewActivity : AppCompatActivity() {
     private var editMode = false
 
     private lateinit var settings: SharedPreferences
+    private var connectivityManager: ConnectivityManager? = null
 
     private fun applySystemBarMarginsToBottomEnd(view: View) {
         val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
@@ -159,13 +162,12 @@ class DayOverviewActivity : AppCompatActivity() {
         }
 
         // Add a connectivity listener, waiting for when we get internet connection back
-        // TODO: Implement network connectivity monitoring
-        // val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        // cm.addDefaultNetworkActiveListener {
-        //     Log.e("DAYOVERVIEW", "Network connection active, checking for pending uploads")
-        //     val uploader = LogUploader(context, settings)
-        //     uploader.uploadPending()
-        // }
+        connectivityManager = getSystemService(ConnectivityManager::class.java)
+        connectivityManager?.addDefaultNetworkActiveListener {
+            Log.e("DAYOVERVIEW", "Network connection active, checking for pending uploads")
+            val uploader = LogUploader(this, settings)
+            uploader.uploadPending()
+        }
 
         // Alert dialog for fiken contact loading
         loadfikencontactsdialog = getLoadFikenContactsAlertDialog()
@@ -340,11 +342,14 @@ class DayOverviewActivity : AppCompatActivity() {
     fun sendLog() {
         // Pack up and send the logs
         if (settings.getBoolean("upload_log_enabled", false)) {
-            Log.e("DAYOVERVIEW", "Log upload is enabled, but uploader is not implemented yet")
-            // TODO: Implement LogUploader
-            // val uploader = LogUploader(this, settings)
-            // uploader.addToUploadQueue(daylog!!)
-            // uploader.uploadPending()
+            val currentDaylog = daylog
+            if (currentDaylog != null) {
+                val uploader = LogUploader(this, settings)
+                uploader.addToUploadQueue(currentDaylog)
+                uploader.uploadPending()
+            } else {
+                Log.e("DAYOVERVIEW", "No day log available for upload")
+            }
         }
         sendLogViaEmail()
     }
@@ -555,30 +560,27 @@ class DayOverviewActivity : AppCompatActivity() {
         if (resultCode == RESULT_OK && requestCode == 1) {
             val bundle = data?.extras
             val towentry = bundle?.getSerializable("value") as TowEntry
-            
-            val currentDaylog = daylog
-            if (currentDaylog != null) {
-                val updatedTows = ArrayList(currentDaylog.tows).apply { add(towentry) }
-                daylog = currentDaylog.copy(tows = updatedTows)
-            }
+            var finalTowEntry = towentry
 
             Log.e("DAYOVERVIEW", "onActivityResult() result OK")
 
             // Extract and write out the GPX content to file
             if (towentry.gpx_body != null) {
                 Log.e("GPXGEN_RETURN", "GPX body not null:  " + towentry.gpx_body)
-                // TODO: Implement GPXGenerator.storeGPX
-                // val filename = GPXGenerator.storeGPX(this, daylog!!, towentry, towentry.gpx_body!!)
-                // if (filename != null) {
-                //     val updatedTow = towentry.copy(gpx_filename = filename, gpx_body = null)
-                //     val index = daylog?.tows?.indexOf(towentry) ?: -1
-                //     if (index >= 0) {
-                //         val newTows = ArrayList(daylog.tows)
-                //         newTows[index] = updatedTow
-                //         daylog = daylog?.copy(tows = newTows)
-                //     }
-                //     Log.e("GPXGEN_RETURN", "Saved a GPX file: $filename")
-                // }
+                val currentDaylog = daylog
+                if (currentDaylog != null) {
+                    val filename = GPXGenerator.storeGPX(this, currentDaylog, towentry, towentry.gpx_body)
+                    if (filename != null) {
+                        finalTowEntry = towentry.copy(gpx_filename = filename, gpx_body = null)
+                        Log.e("GPXGEN_RETURN", "Saved a GPX file: $filename")
+                    }
+                }
+            }
+
+            val currentDaylog = daylog
+            if (currentDaylog != null) {
+                val updatedTows = ArrayList(currentDaylog.tows).apply { add(finalTowEntry) }
+                daylog = currentDaylog.copy(tows = updatedTows)
             }
 
             // Refresh the table view
