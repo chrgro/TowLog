@@ -9,7 +9,7 @@
 
     <header
         android:fragment="no.ntnuf.tow.towlog2.SettingsActivity$GPSPreferenceFragment"
-        android:icon="@mipmap/ic_gps_location"
+        android:icon="@drawable/ic_gps_location"
         android:title="GPS settings" />
 
     <header
