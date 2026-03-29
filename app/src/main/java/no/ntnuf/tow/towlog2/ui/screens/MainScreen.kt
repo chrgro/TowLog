@@ -3,11 +3,11 @@ package no.ntnuf.tow.towlog2.ui.screens
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.DatePicker
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -17,9 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import no.ntnuf.tow.towlog2.R
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
@@ -88,57 +91,78 @@ fun MainScreen(
 
             // Tow Pilot Name
             var expanded by remember { mutableStateOf(false) }
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = it }
-            ) {
-                OutlinedTextField(
-                    value = towPilotName,
-                    onValueChange = { viewModel.updateTowPilotName(it) },
-                    label = { Text("Tow Pilot Name") },
-                    modifier = Modifier.menuAnchor(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Words
-                    )
-                )
-                ExposedDropdownMenu(
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("Tow Pilot Name", style = MaterialTheme.typography.bodyMedium)
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = it },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    contacts.forEach { contact ->
-                        DropdownMenuItem(
-                            text = { Text(contact.name) },
-                            onClick = {
-                                viewModel.updateTowPilotName(contact.name)
-                                expanded = false
+                    TextField(
+                        value = towPilotName,
+                        onValueChange = { viewModel.updateTowPilotName(it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        textStyle = TextStyle(fontSize = 30.sp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Words
+                        ),
+                        trailingIcon = {
+                            selectedTowPilot?.let { pilot ->
+                                Image(
+                                    painter = painterResource(
+                                        if (pilot.hasAccount) R.mipmap.green_checkmark
+                                        else R.mipmap.new_icon_blue
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(30.dp)
+                                )
                             }
-                        )
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        contacts.forEach { contact ->
+                            DropdownMenuItem(
+                                text = { Text(contact.name) },
+                                onClick = {
+                                    viewModel.updateTowPilotName(contact.name)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
 
-            // Show a success indicator only when the selected pilot has an account.
-            selectedTowPilot?.let { pilot ->
-                if (pilot.hasAccount) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = Color.Green
-                    )
-                }
-            }
-
             // Tow Plane
-            OutlinedTextField(
-                value = towPlane,
-                onValueChange = { viewModel.updateTowPlane(it.uppercase(Locale.ROOT)) },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Characters
-                ),
-                label = { Text("Tow Plane Registration") },
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("Tow Plane Registration", style = MaterialTheme.typography.bodyMedium)
+                TextField(
+                    value = towPlane,
+                    onValueChange = { viewModel.updateTowPlane(it.uppercase(Locale.ROOT)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontSize = 30.sp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Characters
+                    ),
+                )
+            }
 
             // Buttons
             Button(
