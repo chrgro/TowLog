@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient.FikenApiException
+import org.json.JSONException
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -280,10 +281,6 @@ class DayOverviewActivity : AppCompatActivity() {
 
             // Load lists of contacts from Fiken accounting program
             R.id.menu_loadfikencontacts -> {
-                if (!isFikenContactLoadingEnabled()) {
-                    Snackbar.make(tableLayout, getString(R.string.fiken_contact_loading_disabled_message), Snackbar.LENGTH_LONG).show()
-                    return true
-                }
                 loadFikenContactsFromMenu()
                 return true
             }
@@ -449,9 +446,58 @@ class DayOverviewActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showFikenFailureDialog(details: String) {
+        val body = if (details.length > fikenErrorBodyMaxChars) {
+            details.take(fikenErrorBodyMaxChars) + "\n\n... (truncated)"
+        } else {
+            details
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Fiken Request Failed")
+            .setMessage(body)
+            .setPositiveButton("Dismiss", null)
+            .show()
+    }
+
+    private fun showFikenFailureDialog(throwable: Throwable) {
+        when (throwable) {
+            is FikenApiException -> {
+                showFikenFailureDialog(
+                    responseCode = throwable.statusCode,
+                    responseBody = throwable.responseBody
+                )
+            }
+            is IllegalStateException -> {
+                showFikenFailureDialog(
+                    throwable.message?.ifBlank { "<empty>" } ?: getString(R.string.fiken_contact_loading_disabled_message)
+                )
+            }
+            is IllegalArgumentException -> {
+                showFikenFailureDialog(
+                    "Configuration error:\n${throwable.message?.ifBlank { "<empty>" } ?: "<none>"}"
+                )
+            }
+            is JSONException -> {
+                showFikenFailureDialog(
+                    "Failed to parse response from Fiken:\n${throwable.message?.ifBlank { "<empty>" } ?: "<none>"}"
+                )
+            }
+            is IOException -> {
+                showFikenFailureDialog(
+                    "Network/API I/O error:\n${throwable.message?.ifBlank { "<empty>" } ?: "<none>"}"
+                )
+            }
+            else -> {
+                showFikenFailureDialog(
+                    "Unexpected error (${throwable::class.java.simpleName}):\n${throwable.message?.ifBlank { "<empty>" } ?: "<none>"}"
+                )
+            }
+        }
+    }
+
     private fun loadFikenContactsFromMenu() {
         if (!isFikenContactLoadingEnabled()) {
-            Snackbar.make(tableLayout, getString(R.string.fiken_contact_loading_disabled_message), Snackbar.LENGTH_LONG).show()
+            showFikenFailureDialog(getString(R.string.fiken_contact_loading_disabled_message))
             return
         }
 
@@ -478,15 +524,7 @@ class DayOverviewActivity : AppCompatActivity() {
                     Snackbar.make(tableLayout, "Loaded contacts ($count)", Snackbar.LENGTH_LONG).show()
                 },
                 onFailure = { throwable ->
-                    val apiException = throwable as? FikenApiException
-                    if (apiException != null) {
-                        showFikenFailureDialog(
-                            responseCode = apiException.statusCode,
-                            responseBody = apiException.responseBody
-                        )
-                    } else {
-                        Snackbar.make(tableLayout, "Failed to load contacts", Snackbar.LENGTH_LONG).show()
-                    }
+                    showFikenFailureDialog(throwable)
                 }
             )
         }

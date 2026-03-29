@@ -10,16 +10,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import no.ntnuf.tow.towlog2.ui.screens.MainScreen
 import no.ntnuf.tow.towlog2.ui.theme.TowLogTheme
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
@@ -29,9 +25,6 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val dayLogFileNamePrefix = "daylog_"
-    private val fikenErrorBodyMaxChars = 2000
-    private val fikenContactLoadingEnabledKey = "fiken_contact_loading_enabled"
-    private val isFikenContactLoadingEnabled = mutableStateOf(true)
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
@@ -64,7 +57,6 @@ class MainActivity : ComponentActivity() {
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        isFikenContactLoadingEnabled.value = readFikenContactLoadingEnabled()
         setContent {
             TowLogTheme {
                 val viewModel: TowingViewModel = viewModel()
@@ -83,35 +75,6 @@ class MainActivity : ComponentActivity() {
                     onShowLogs = {
                         showPreviousLogsDialog(viewModel)
                     },
-                    isFikenContactLoadingEnabled = isFikenContactLoadingEnabled.value,
-                    onLoadFikenContacts = {
-                        if (!readFikenContactLoadingEnabled()) {
-                            Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.fiken_contact_loading_disabled_message),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            Toast.makeText(this@MainActivity, "Connecting to Fiken...", Toast.LENGTH_SHORT).show()
-                            lifecycleScope.launch {
-                                val result = viewModel.loadFikenContacts()
-                                if (result.success) {
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        "${result.message} (${result.count})",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } else if (result.httpResponseCode != null) {
-                                    showFikenFailureDialog(
-                                        responseCode = result.httpResponseCode,
-                                        responseBody = result.httpResponseBody.orEmpty()
-                                    )
-                                } else {
-                                    Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        }
-                    },
                     onSettings = {
                         val intent = Intent(this@MainActivity, SettingsActivity::class.java)
                         startActivity(intent)
@@ -120,16 +83,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         ensureLocationPermissionOnLaunch()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isFikenContactLoadingEnabled.value = readFikenContactLoadingEnabled()
-    }
-
-    private fun readFikenContactLoadingEnabled(): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        return preferences.getBoolean(fikenContactLoadingEnabledKey, true)
     }
 
     private fun ensureLocationPermissionOnLaunch() {
@@ -181,20 +134,6 @@ class MainActivity : ComponentActivity() {
             .setTitle(getString(R.string.location_permission_title))
             .setMessage(getString(R.string.location_permission_permanently_denied_message))
             .setPositiveButton(getString(R.string.location_permission_ok), null)
-            .show()
-    }
-
-    private fun showFikenFailureDialog(responseCode: Int, responseBody: String) {
-        val normalizedBody = responseBody.ifBlank { "<empty>" }
-        val body = if (normalizedBody.length > fikenErrorBodyMaxChars) {
-            normalizedBody.take(fikenErrorBodyMaxChars) + "\n\n... (truncated)"
-        } else {
-            normalizedBody
-        }
-        AlertDialog.Builder(this)
-            .setTitle("Fiken Request Failed")
-            .setMessage("HTTP $responseCode\n\n$body")
-            .setPositiveButton("Dismiss", null)
             .show()
     }
 

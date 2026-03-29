@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,8 +36,6 @@ fun MainScreen(
     onStartNewDay: (Bundle) -> Unit,
     onResumeDay: (Bundle) -> Unit,
     onShowLogs: () -> Unit,
-    isFikenContactLoadingEnabled: Boolean,
-    onLoadFikenContacts: () -> Unit,
     onSettings: () -> Unit
 ) {
     val context = LocalContext.current
@@ -66,11 +63,6 @@ fun MainScreen(
                 actions = {
                     IconButton(onClick = onShowLogs) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Show Logs")
-                    }
-                    if (isFikenContactLoadingEnabled) {
-                        IconButton(onClick = onLoadFikenContacts) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Load Fiken Contacts")
-                        }
                     }
                     IconButton(onClick = onSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
