@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -24,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -36,6 +38,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.max
 
 class MainActivity : AppCompatActivity() {
     private val dayLogFileNamePrefix = "daylog_"
@@ -50,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var towPilotInput: AutoCompleteTextView
     private lateinit var towPilotCheckmark: ImageView
     private lateinit var towPlaneInput: EditText
+    private lateinit var mainButtonContainer: View
     private lateinit var startNewDayButton: Button
     private lateinit var resumeDayButton: Button
     private lateinit var contactAdapter: ArrayAdapter<String>
@@ -124,11 +128,35 @@ class MainActivity : AppCompatActivity() {
         towPilotInput = findViewById(R.id.towPilotNameIn)
         towPilotCheckmark = findViewById(R.id.towPilotCheckmark)
         towPlaneInput = findViewById(R.id.towPlaneIn)
+        mainButtonContainer = findViewById(R.id.mainButtonContainer)
         startNewDayButton = findViewById(R.id.startDayButton)
         resumeDayButton = findViewById(R.id.resumeDayButton)
+        applyImeAwareMarginsToBottomEnd(mainButtonContainer)
 
         contactAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, mutableListOf())
         towPilotInput.setAdapter(contactAdapter)
+    }
+
+    private fun applyImeAwareMarginsToBottomEnd(view: View) {
+        val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val initialBottom = marginLayoutParams.bottomMargin
+        val initialEnd = marginLayoutParams.marginEnd
+        val initialRight = marginLayoutParams.rightMargin
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { target, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val updated = target.layoutParams as? ViewGroup.MarginLayoutParams
+                ?: return@setOnApplyWindowInsetsListener insets
+
+            updated.bottomMargin = initialBottom + max(systemBars.bottom, ime.bottom)
+            updated.marginEnd = initialEnd + systemBars.right
+            updated.rightMargin = initialRight + systemBars.right
+            target.layoutParams = updated
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(view)
     }
 
     private fun bindInputHandlers() {
@@ -233,6 +261,7 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     viewModel.foundDayLog.collect { foundDayLog ->
                         resumeDayButton.visibility = if (foundDayLog) View.VISIBLE else View.GONE
+                        startNewDayButton.visibility = if (foundDayLog) View.GONE else View.VISIBLE
                     }
                 }
             }

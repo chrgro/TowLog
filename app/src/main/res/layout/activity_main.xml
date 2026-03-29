@@ -35,7 +35,9 @@
                 android:id="@+id/startDayButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/main_start_new_day" />
+                android:backgroundTint="@color/colorPrimary"
+                android:text="@string/main_start_new_day"
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/resumeDayButton"
