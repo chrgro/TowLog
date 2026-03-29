@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -24,6 +23,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -373,14 +373,20 @@ class DayOverviewActivity : AppCompatActivity() {
 
             // Then add that HTML file as an attachment to the email
             val file = towlogfile //getFileStreamPath(towlogfilename);
+            val attachmentUri = FileProvider.getUriForFile(
+                this,
+                "$packageName.fileprovider",
+                file
+            )
 
             // Also add the CSV version to the email directly
             val emailintent = Intent(Intent.ACTION_SEND)
             emailintent.type = "text/plain"
             emailintent.putExtra(Intent.EXTRA_EMAIL, arrayOf(receiver_email))
             emailintent.putExtra(Intent.EXTRA_SUBJECT, "Tow Log for $dstr")
-            emailintent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
+            emailintent.putExtra(Intent.EXTRA_STREAM, attachmentUri)
             emailintent.putExtra(Intent.EXTRA_TEXT, currentDaylog.getCsvOutput())
+            emailintent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             // If this setting is enabled, add all the emails to pilots to the BCC
             // list of the email
