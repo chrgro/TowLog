@@ -11,12 +11,15 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import no.ntnuf.tow.towlog2.model.Contact
@@ -24,6 +27,7 @@ import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.model.RegistrationList
 import no.ntnuf.tow.towlog2.model.TowEntry
 import java.util.Date
+import kotlin.math.max
 
 @Suppress("DEPRECATION")
 class NewTowActivity : AppCompatActivity(), LocationListener {
@@ -46,6 +50,28 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
     private lateinit var settings: SharedPreferences
 
     private lateinit var locationManager: LocationManager
+
+    private fun applyImeAwareMarginsToBottomEnd(view: View) {
+        val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val initialBottom = marginLayoutParams.bottomMargin
+        val initialEnd = marginLayoutParams.marginEnd
+        val initialRight = marginLayoutParams.rightMargin
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { target, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val updated = target.layoutParams as? ViewGroup.MarginLayoutParams
+                ?: return@setOnApplyWindowInsetsListener insets
+
+            updated.bottomMargin = initialBottom + max(systemBars.bottom, ime.bottom)
+            updated.marginEnd = initialEnd + systemBars.right
+            updated.rightMargin = initialRight + systemBars.right
+            target.layoutParams = updated
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(view)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set fullscreen
@@ -125,6 +151,7 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
         // Set up button for starting tow
         val fab: FloatingActionButton = findViewById(R.id.startTowButton)
+        applyImeAwareMarginsToBottomEnd(fab)
         fab.setOnClickListener {
             // Save any interesting data
             val reg = registrationIn.text.toString().trim()
