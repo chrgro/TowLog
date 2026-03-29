@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.Toast
@@ -50,6 +51,27 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
     private lateinit var settings: SharedPreferences
 
     private lateinit var locationManager: LocationManager
+
+    private fun getDefaultNotesFromSettings(): List<String> {
+        val defaultNotes = settings.getString("default_notes", "") ?: ""
+        return defaultNotes
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+    }
+
+    private fun refreshNotesAutocomplete() {
+        val notesSuggestions = getDefaultNotesFromSettings()
+        notesIn.setAdapter(
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                notesSuggestions
+            )
+        )
+        notesIn.threshold = 0
+    }
 
     private fun applyImeAwareMarginsToBottomEnd(view: View) {
         val marginLayoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
@@ -143,6 +165,7 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
         // Set up notes input
         notesIn = findViewById(R.id.notesIn)
+        refreshNotesAutocomplete()
         notesIn.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 notesIn.showDropDown()
@@ -193,6 +216,9 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
     override fun onResume() {
         super.onResume()
+
+        // Refresh notes suggestions in case they were changed in Settings.
+        refreshNotesAutocomplete()
 
         // Set up a GPS location listener on this screen, to aquire GPS signals
         // faster when we actually need them in the next activity

@@ -88,7 +88,7 @@
             android:inputType="text"
             android:key="default_notes"
             android:maxLines="1"
-            android:defaultValue="Instruktøropplæring,Introkurs,Klubbslep"
+            android:defaultValue="Instruktøropplæring,Introkurs"
             android:singleLine="true"
             android:title="Default notes avavailable"
             android:summary="Comma-separated list of default notes available." />
