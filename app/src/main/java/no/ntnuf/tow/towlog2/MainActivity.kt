@@ -27,6 +27,7 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val dayLogFileNamePrefix = "daylog_"
+    private val fikenErrorBodyMaxChars = 2000
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
@@ -81,8 +82,20 @@ class MainActivity : ComponentActivity() {
                         Toast.makeText(this@MainActivity, "Connecting to Fiken...", Toast.LENGTH_SHORT).show()
                         lifecycleScope.launch {
                             val result = viewModel.loadFikenContacts()
-                            val suffix = if (result.success) " (${result.count})" else ""
-                            Toast.makeText(this@MainActivity, result.message + suffix, Toast.LENGTH_LONG).show()
+                            if (result.success) {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "${result.message} (${result.count})",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else if (result.httpResponseCode != null) {
+                                showFikenFailureDialog(
+                                    responseCode = result.httpResponseCode,
+                                    responseBody = result.httpResponseBody.orEmpty()
+                                )
+                            } else {
+                                Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_LONG).show()
+                            }
                         }
                     },
                     onSettings = {
@@ -144,6 +157,20 @@ class MainActivity : ComponentActivity() {
             .setTitle(getString(R.string.location_permission_title))
             .setMessage(getString(R.string.location_permission_permanently_denied_message))
             .setPositiveButton(getString(R.string.location_permission_ok), null)
+            .show()
+    }
+
+    private fun showFikenFailureDialog(responseCode: Int, responseBody: String) {
+        val normalizedBody = responseBody.ifBlank { "<empty>" }
+        val body = if (normalizedBody.length > fikenErrorBodyMaxChars) {
+            normalizedBody.take(fikenErrorBodyMaxChars) + "\n\n... (truncated)"
+        } else {
+            normalizedBody
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Fiken Request Failed")
+            .setMessage("HTTP $responseCode\n\n$body")
+            .setPositiveButton("Dismiss", null)
             .show()
     }
 

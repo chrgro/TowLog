@@ -9,6 +9,11 @@ import java.net.URL
 
 class FikenApiClient(private val settings: SharedPreferences) {
 
+    class FikenApiException(
+        val statusCode: Int,
+        val responseBody: String
+    ) : IOException("Fiken API request failed (HTTP $statusCode)")
+
     companion object {
         private const val KEY_API_URL = "fiken_api_url"
         private const val KEY_API_BEARER = "fiken_api_bearer_key"
@@ -66,7 +71,7 @@ class FikenApiClient(private val settings: SharedPreferences) {
             val responseBody = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
 
             if (responseCode !in 200..299) {
-                throw IOException("Fiken API request failed (HTTP $responseCode)")
+                throw FikenApiException(responseCode, responseBody)
             }
 
             return responseBody

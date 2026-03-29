@@ -31,6 +31,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import no.ntnuf.tow.towlog2.fiken.FikenApiClient.FikenApiException
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -58,6 +59,7 @@ class DayOverviewActivity : AppCompatActivity() {
     private lateinit var floatingactionbutton: FloatingActionButton
 
     private val dayLogFileName = "daylog_"
+    private val fikenErrorBodyMaxChars = 2000
 
     private var menu: Menu? = null
 
@@ -427,6 +429,20 @@ class DayOverviewActivity : AppCompatActivity() {
         return builder.create()
     }
 
+    private fun showFikenFailureDialog(responseCode: Int, responseBody: String) {
+        val normalizedBody = responseBody.ifBlank { "<empty>" }
+        val body = if (normalizedBody.length > fikenErrorBodyMaxChars) {
+            normalizedBody.take(fikenErrorBodyMaxChars) + "\n\n... (truncated)"
+        } else {
+            normalizedBody
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Fiken Request Failed")
+            .setMessage("HTTP $responseCode\n\n$body")
+            .setPositiveButton("Dismiss", null)
+            .show()
+    }
+
     private fun loadFikenContactsFromMenu() {
         loadfikencontactsdialog.show()
 
@@ -450,8 +466,16 @@ class DayOverviewActivity : AppCompatActivity() {
                 onSuccess = { count ->
                     Snackbar.make(tableLayout, "Loaded contacts ($count)", Snackbar.LENGTH_LONG).show()
                 },
-                onFailure = {
-                    Snackbar.make(tableLayout, "Failed to load contacts", Snackbar.LENGTH_LONG).show()
+                onFailure = { throwable ->
+                    val apiException = throwable as? FikenApiException
+                    if (apiException != null) {
+                        showFikenFailureDialog(
+                            responseCode = apiException.statusCode,
+                            responseBody = apiException.responseBody
+                        )
+                    } else {
+                        Snackbar.make(tableLayout, "Failed to load contacts", Snackbar.LENGTH_LONG).show()
+                    }
                 }
             )
         }

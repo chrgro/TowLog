@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient
+import no.ntnuf.tow.towlog2.fiken.FikenApiClient.FikenApiException
 import no.ntnuf.tow.towlog2.model.Contact
 import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.model.DayLog
@@ -22,7 +23,9 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
     data class FikenLoadResult(
         val success: Boolean,
         val message: String,
-        val count: Int = 0
+        val count: Int = 0,
+        val httpResponseCode: Int? = null,
+        val httpResponseBody: String? = null
     )
 
     private val _towPilotName = MutableStateFlow("")
@@ -117,10 +120,13 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
                     count = contacts.size
                 )
             },
-            onFailure = {
+            onFailure = { throwable ->
+                val apiException = throwable as? FikenApiException
                 FikenLoadResult(
                     success = false,
-                    message = "Failed to load contacts"
+                    message = "Failed to load contacts",
+                    httpResponseCode = apiException?.statusCode,
+                    httpResponseBody = apiException?.responseBody
                 )
             }
         )
