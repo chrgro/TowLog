@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -29,24 +30,43 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical">
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:theme="@style/Theme.MaterialComponents.Light">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/startDayButton"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/main_action_button_width"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorPrimary"
+                android:elevation="2dp"
+                android:paddingStart="@dimen/main_action_button_padding_horizontal"
+                android:paddingTop="@dimen/main_action_button_padding_vertical"
+                android:paddingEnd="@dimen/main_action_button_padding_horizontal"
+                android:paddingBottom="@dimen/main_action_button_padding_vertical"
                 android:text="@string/main_start_new_day"
-                android:textColor="@color/white" />
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/colorPrimary"
+                app:cornerRadius="@dimen/main_action_button_corner_radius"
+                app:rippleColor="@color/white" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/resumeDayButton"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/main_action_button_width"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:backgroundTint="@color/resumeday_button"
+                android:elevation="2dp"
+                android:paddingStart="@dimen/main_action_button_padding_horizontal"
+                android:paddingTop="@dimen/main_action_button_padding_vertical"
+                android:paddingEnd="@dimen/main_action_button_padding_horizontal"
+                android:paddingBottom="@dimen/main_action_button_padding_vertical"
                 android:text="@string/main_resume_day"
-                android:visibility="gone" />
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:backgroundTint="@color/resumeday_button"
+                app:cornerRadius="@dimen/main_action_button_corner_radius"
+                app:rippleColor="@color/white" />
         </LinearLayout>
 
         <ScrollView

@@ -9,4 +9,9 @@
     <dimen name="duringtowing_textsize_header">24dp</dimen>
     <dimen name="duringtowing_textsize">34dp</dimen>
     <dimen name="duringtowing_textsize_button">20dp</dimen>
+
+    <dimen name="main_action_button_width">240dp</dimen>
+    <dimen name="main_action_button_corner_radius">18dp</dimen>
+    <dimen name="main_action_button_padding_horizontal">24dp</dimen>
+    <dimen name="main_action_button_padding_vertical">12dp</dimen>
 </resources>
