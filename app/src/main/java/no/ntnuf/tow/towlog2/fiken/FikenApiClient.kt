@@ -15,6 +15,7 @@ class FikenApiClient(private val settings: SharedPreferences) {
     ) : IOException("Fiken API request failed (HTTP $statusCode)")
 
     companion object {
+        private const val KEY_CONTACT_LOADING_ENABLED = "fiken_contact_loading_enabled"
         private const val KEY_API_URL = "fiken_api_url"
         private const val KEY_API_BEARER = "fiken_api_bearer_key"
         private const val PAGE_SIZE = 100
@@ -22,8 +23,13 @@ class FikenApiClient(private val settings: SharedPreferences) {
 
     fun loadContacts(): Result<List<Contact>> {
         return runCatching {
+            val contactLoadingEnabled = settings.getBoolean(KEY_CONTACT_LOADING_ENABLED, true)
             val baseUrl = settings.getString(KEY_API_URL, "")?.trim().orEmpty()
             val bearerToken = settings.getString(KEY_API_BEARER, "")?.trim().orEmpty()
+
+            if (!contactLoadingEnabled) {
+                throw IllegalStateException("Fiken contact loading is disabled")
+            }
 
             if (baseUrl.isBlank()) {
                 throw IllegalArgumentException("Fiken API URL is empty")

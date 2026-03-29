@@ -37,6 +37,7 @@ fun MainScreen(
     onStartNewDay: (Bundle) -> Unit,
     onResumeDay: (Bundle) -> Unit,
     onShowLogs: () -> Unit,
+    isFikenContactLoadingEnabled: Boolean,
     onLoadFikenContacts: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -66,8 +67,10 @@ fun MainScreen(
                     IconButton(onClick = onShowLogs) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Show Logs")
                     }
-                    IconButton(onClick = onLoadFikenContacts) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Load Fiken Contacts")
+                    if (isFikenContactLoadingEnabled) {
+                        IconButton(onClick = onLoadFikenContacts) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Load Fiken Contacts")
+                        }
                     }
                     IconButton(onClick = onSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")

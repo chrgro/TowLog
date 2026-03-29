@@ -60,6 +60,7 @@ class DayOverviewActivity : AppCompatActivity() {
 
     private val dayLogFileName = "daylog_"
     private val fikenErrorBodyMaxChars = 2000
+    private val fikenContactLoadingEnabledKey = "fiken_contact_loading_enabled"
 
     private var menu: Menu? = null
 
@@ -191,6 +192,7 @@ class DayOverviewActivity : AppCompatActivity() {
         menu.findItem(R.id.menu_reenablelog).isVisible = daylog?.logIsLocked == true
         menu.findItem(R.id.menu_editlog).isVisible = daylog?.logIsLocked != true
         menu.findItem(R.id.menu_deletedaylog).isVisible = daylog?.logIsLocked != true
+        menu.findItem(R.id.menu_loadfikencontacts).isVisible = isFikenContactLoadingEnabled()
 
         return true
     }
@@ -278,6 +280,10 @@ class DayOverviewActivity : AppCompatActivity() {
 
             // Load lists of contacts from Fiken accounting program
             R.id.menu_loadfikencontacts -> {
+                if (!isFikenContactLoadingEnabled()) {
+                    Snackbar.make(tableLayout, getString(R.string.fiken_contact_loading_disabled_message), Snackbar.LENGTH_LONG).show()
+                    return true
+                }
                 loadFikenContactsFromMenu()
                 return true
             }
@@ -444,6 +450,11 @@ class DayOverviewActivity : AppCompatActivity() {
     }
 
     private fun loadFikenContactsFromMenu() {
+        if (!isFikenContactLoadingEnabled()) {
+            Snackbar.make(tableLayout, getString(R.string.fiken_contact_loading_disabled_message), Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         loadfikencontactsdialog.show()
 
         lifecycleScope.launch {
@@ -479,6 +490,10 @@ class DayOverviewActivity : AppCompatActivity() {
                 }
             )
         }
+    }
+
+    private fun isFikenContactLoadingEnabled(): Boolean {
+        return settings.getBoolean(fikenContactLoadingEnabledKey, true)
     }
 
     // Return towentry from the started activity (only for tow activity results, type 0)

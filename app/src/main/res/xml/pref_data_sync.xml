@@ -1,12 +1,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:title="Fiken.no API">
+        <SwitchPreference
+            android:key="fiken_contact_loading_enabled"
+            android:defaultValue="false"
+            android:title="@string/fiken_contact_loading_enabled_title"
+            android:summary="@string/fiken_contact_loading_enabled_summary" />
+
         <EditTextPreference
             android:inputType="text"
             android:key="fiken_api_url"
             android:maxLines="1"
             android:defaultValue="https://api.fiken.no/api/v2/companies/&lt;companySlug&gt;/contacts"
             android:singleLine="true"
+            android:dependency="fiken_contact_loading_enabled"
             android:title="Fiken.no URL to Contact REST API "
             android:summary="Fiken.no URL to Contact REST API. Default: https://api.fiken.no/api/v2/companies/&lt;companySlug&gt;/contacts"/>
 
@@ -15,6 +22,7 @@
             android:key="fiken_api_bearer_key"
             android:maxLines="1"
             android:singleLine="true"
+            android:dependency="fiken_contact_loading_enabled"
             android:title="Fiken.no API Bearer key"
             android:summary="Bearer token used for authenticating against the Fiken v2 API."/>
     </PreferenceCategory>

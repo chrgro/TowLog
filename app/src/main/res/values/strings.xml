@@ -21,6 +21,10 @@
     <string name="location_permission_not_now">Not now</string>
     <string name="location_permission_ok">OK</string>
 
+    <string name="fiken_contact_loading_enabled_title">Enable Fiken contact loading</string>
+    <string name="fiken_contact_loading_enabled_summary">Allow loading contacts from the configured Fiken API URL.</string>
+    <string name="fiken_contact_loading_disabled_message">Fiken contact loading is disabled in settings.</string>
+
 
 
 </resources>
