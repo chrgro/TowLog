@@ -1,4 +1,6 @@
 *.iml
+app/release
+app/debug
 .gradle
 /local.properties
 /.idea/caches
