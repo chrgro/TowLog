@@ -2,33 +2,59 @@ package no.ntnuf.tow.towlog2
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import androidx.activity.enableEdgeToEdge
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import no.ntnuf.tow.towlog2.ui.screens.MainScreen
-import no.ntnuf.tow.towlog2.ui.theme.TowLogTheme
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val dayLogFileNamePrefix = "daylog_"
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
+    private val viewModel: TowingViewModel by viewModels()
+
+    private lateinit var toolbar: Toolbar
+    private lateinit var selectDateButton: Button
+    private lateinit var towPilotInput: AutoCompleteTextView
+    private lateinit var towPilotCheckmark: ImageView
+    private lateinit var towPlaneInput: EditText
+    private lateinit var startNewDayButton: Button
+    private lateinit var resumeDayButton: Button
+    private lateinit var contactAdapter: ArrayAdapter<String>
+
+    private var isUpdatingTowPlaneText = false
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -57,32 +83,183 @@ class MainActivity : ComponentActivity() {
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        setContent {
-            TowLogTheme {
-                val viewModel: TowingViewModel = viewModel()
-                MainScreen(
-                    viewModel = viewModel,
-                    onStartNewDay = { bundle ->
-                        val intent = Intent(this@MainActivity, DayOverviewActivity::class.java)
-                        intent.putExtras(bundle)
-                        startActivity(intent)
-                    },
-                    onResumeDay = { bundle ->
-                        val intent = Intent(this@MainActivity, DayOverviewActivity::class.java)
-                        intent.putExtras(bundle)
-                        startActivity(intent)
-                    },
-                    onShowLogs = {
-                        showPreviousLogsDialog(viewModel)
-                    },
-                    onSettings = {
-                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
-                        startActivity(intent)
-                    }
-                )
+        setContentView(R.layout.activity_main)
+
+        toolbar = findViewById(R.id.toolbarmain)
+        toolbar.title = getString(R.string.main_prepare_towing_title)
+        setSupportActionBar(toolbar)
+
+        bindViews()
+        bindViewModel()
+        bindInputHandlers()
+
+        // Trigger initial day-log existence check for the default selected date.
+        viewModel.updateSelectedDate(viewModel.selectedDate.value)
+
+        ensureLocationPermissionOnLaunch()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_previous_logs -> {
+                showPreviousLogsDialog()
+                return true
+            }
+
+            R.id.menu_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                return true
             }
         }
-        ensureLocationPermissionOnLaunch()
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun bindViews() {
+        selectDateButton = findViewById(R.id.selectDateButton)
+        towPilotInput = findViewById(R.id.towPilotNameIn)
+        towPilotCheckmark = findViewById(R.id.towPilotCheckmark)
+        towPlaneInput = findViewById(R.id.towPlaneIn)
+        startNewDayButton = findViewById(R.id.startDayButton)
+        resumeDayButton = findViewById(R.id.resumeDayButton)
+
+        contactAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        towPilotInput.setAdapter(contactAdapter)
+    }
+
+    private fun bindInputHandlers() {
+        selectDateButton.setOnClickListener { showDatePicker() }
+
+        towPilotInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.updateTowPilotName(s?.toString().orEmpty())
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+
+        towPilotInput.setOnItemClickListener { _, _, _, _ ->
+            viewModel.updateTowPilotName(towPilotInput.text?.toString().orEmpty())
+        }
+
+        towPlaneInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isUpdatingTowPlaneText) return
+
+                val normalized = s?.toString().orEmpty().uppercase(Locale.ROOT)
+                if (normalized != s?.toString().orEmpty()) {
+                    isUpdatingTowPlaneText = true
+                    towPlaneInput.setText(normalized)
+                    towPlaneInput.setSelection(normalized.length)
+                    isUpdatingTowPlaneText = false
+                }
+                viewModel.updateTowPlane(normalized)
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+
+        startNewDayButton.setOnClickListener {
+            val bundle = viewModel.startNewDay()
+            openDayOverview(bundle)
+        }
+
+        resumeDayButton.setOnClickListener {
+            val bundle = viewModel.resumeDay()
+            if (bundle.isEmpty) {
+                Toast.makeText(this, getString(R.string.main_could_not_load_selected_log), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            openDayOverview(bundle)
+        }
+    }
+
+    private fun bindViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.selectedDate.collect { selectedDate ->
+                        val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            .format(selectedDate)
+                        selectDateButton.text = getString(R.string.main_selected_date_value, formattedDate)
+                    }
+                }
+
+                launch {
+                    viewModel.towPilotName.collect { pilotName ->
+                        if (towPilotInput.text?.toString() != pilotName) {
+                            towPilotInput.setText(pilotName)
+                            towPilotInput.setSelection(pilotName.length)
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.towPlane.collect { towPlane ->
+                        if (towPlaneInput.text?.toString() != towPlane) {
+                            towPlaneInput.setText(towPlane)
+                            towPlaneInput.setSelection(towPlane.length)
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.contacts.collect { contacts ->
+                        contactAdapter.clear()
+                        contactAdapter.addAll(contacts.map { it.name })
+                        contactAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                launch {
+                    viewModel.selectedTowPilot.collect { pilot ->
+                        if (pilot == null) {
+                            towPilotCheckmark.visibility = View.GONE
+                        } else {
+                            towPilotCheckmark.visibility = View.VISIBLE
+                            towPilotCheckmark.setImageResource(
+                                if (pilot.hasAccount) R.mipmap.green_checkmark else R.mipmap.new_icon_blue
+                            )
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.foundDayLog.collect { foundDayLog ->
+                        resumeDayButton.visibility = if (foundDayLog) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showDatePicker() {
+        val selectedDate = viewModel.selectedDate.value
+        val calendar = Calendar.getInstance().apply { time = selectedDate }
+        DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                val newDate = Calendar.getInstance().apply {
+                    set(year, month, dayOfMonth)
+                }.time
+                viewModel.updateSelectedDate(newDate)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun openDayOverview(bundle: Bundle) {
+        val intent = Intent(this, DayOverviewActivity::class.java)
+        intent.putExtras(bundle)
+        startActivity(intent)
     }
 
     private fun ensureLocationPermissionOnLaunch() {
@@ -137,27 +314,27 @@ class MainActivity : ComponentActivity() {
             .show()
     }
 
-    private fun showPreviousLogsDialog(viewModel: TowingViewModel) {
+    private fun showPreviousLogsDialog() {
         val availableLogs = availableDayLogs()
         if (availableLogs.isEmpty()) {
-            Toast.makeText(this, "No previous logs found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.main_no_previous_logs), Toast.LENGTH_SHORT).show()
             return
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Previous logs")
+            .setTitle(getString(R.string.main_previous_logs_title))
             .setItems(availableLogs.map { it.displayName }.toTypedArray()) { _, which ->
                 val selectedLog = availableLogs.getOrNull(which) ?: return@setItems
                 val selectedDate = parseDayLogSuffix(selectedLog.fileNameSuffix)
                 if (selectedDate == null) {
-                    Toast.makeText(this, "Unable to parse selected log date", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.main_unable_to_parse_log_date), Toast.LENGTH_SHORT).show()
                     return@setItems
                 }
 
                 viewModel.updateSelectedDate(selectedDate)
                 val bundle = viewModel.resumeDay()
                 if (bundle.isEmpty) {
-                    Toast.makeText(this, "Could not load selected log", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.main_could_not_load_selected_log), Toast.LENGTH_SHORT).show()
                     return@setItems
                 }
 

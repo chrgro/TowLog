@@ -25,6 +25,23 @@
     <string name="fiken_contact_loading_enabled_summary">Allow loading contacts from the configured Fiken API URL.</string>
     <string name="fiken_contact_loading_disabled_message">Fiken contact loading is disabled in settings.</string>
 
+    <string name="main_prepare_towing_title">Prepare Towing</string>
+    <string name="main_start_new_day">Start New Day</string>
+    <string name="main_resume_day">Resume Day</string>
+    <string name="main_selected_date">Selected Date</string>
+    <string name="main_selected_date_value">Selected Date: %1$s</string>
+    <string name="main_tow_pilot_name">Tow Pilot Name</string>
+    <string name="main_tow_plane_registration">Tow Plane Registration</string>
+    <string name="main_menu_previous_logs">Previous logs</string>
+    <string name="main_menu_settings">Settings</string>
+    <string name="main_no_previous_logs">No previous logs found</string>
+    <string name="main_previous_logs_title">Previous logs</string>
+    <string name="main_unable_to_parse_log_date">Unable to parse selected log date</string>
+    <string name="main_could_not_load_selected_log">Could not load selected log</string>
+    <string name="main_tow_pilot_hint">Enter tow pilot name</string>
+    <string name="main_tow_plane_hint">Enter tow plane registration</string>
+    <string name="main_tow_pilot_status_icon_description">Tow pilot status</string>
+
 
 
 </resources>

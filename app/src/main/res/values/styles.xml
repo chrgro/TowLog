@@ -30,9 +30,9 @@
         <item name="android:colorBackground">@color/background</item>
 
         <item name="android:actionMenuTextColor">@color/background</item>
-        <item name="android:textColorPrimary">#ff0000</item>
-        <item name="android:textColorSecondary">#00ff00</item>
-        <item name="android:textColorTertiary">@color/textColorPrimary</item> <!-- TextView colors -->
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColorSecondary">@color/textColorPrimary</item>
+        <item name="android:textColorTertiary">@color/textColorPrimary</item>
     </style>
 
     <style name="ToolbarStyle" parent="@style/ThemeOverlay.AppCompat.Dark">
