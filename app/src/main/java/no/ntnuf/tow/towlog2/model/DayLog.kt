@@ -42,21 +42,24 @@ data class DayLog(
         var ret = "Towing log: \n\n\n"
 
         ret += "towpilot, ${towpilot.name}\n"
+        ret += "towpilotCustomerNumber, ${formatCustomerNumber(towpilot)}\n"
         ret += "towplane, $towplane\n"
         ret += "date, ${outdf.format(date)}\n\n"
 
-        ret += "tow#, registration, pilot (billing), copilot, height, timeOfTow, notes \n\n"
+        ret += "tow#, registration, pilot (billing), pilotCustomerNumber, copilot, copilotCustomerNumber, height, timeOfTow, notes \n\n"
 
         var i = 1
         for (tow in tows) {
             ret += "#${i}, "
             ret += "${tow.registration}, "
             ret += "${tow.pilot.name}, "
+            ret += "${formatCustomerNumber(tow.pilot)}, "
 
             if (tow.copilot != null) {
-                ret += tow.copilot
+                ret += tow.copilot.name
             }
             ret += ", "
+            ret += "${formatCustomerNumber(tow.copilot)}, "
 
             ret += "${tow.height}m, "
             ret += "${time.format(tow.towStarted)}, "
@@ -82,6 +85,7 @@ data class DayLog(
         var ret = "{ \n"
 
         ret += "\"towpilot\": \"${towpilot.name}\",\n"
+        ret += "\"towpilot_customer_number\": ${towpilot.customerNumber},\n"
         ret += "\"towplane\": \"$towplane\",\n"
 
         ret += "\"date\": \"${outdf.format(date)}\",\n"
@@ -100,13 +104,15 @@ data class DayLog(
 
             ret += "  \"registration\": \"${tow.registration}\",\n"
             ret += "  \"pilot\": \"${tow.pilot.name}\",\n"
+            ret += "  \"pilot_customer_number\": ${tow.pilot.customerNumber},\n"
 
             if (tow.pilot.email != null) {
                 ret += "  \"pilot_email\": \"${tow.pilot.email}\",\n"
             }
 
             if (tow.copilot != null) {
-                ret += "  \"copilot\": \"${tow.copilot}\",\n"
+                ret += "  \"copilot\": \"${tow.copilot.name}\",\n"
+                ret += "  \"copilot_customer_number\": ${tow.copilot.customerNumber},\n"
                 if (tow.copilot.email != null) {
                     ret += "  \"copilot_email\": \"${tow.copilot.email}\",\n"
                 }
@@ -185,5 +191,12 @@ data class DayLog(
             newTows.removeAt(line)
         }
         return copy(tows = newTows)
+    }
+
+    private fun formatCustomerNumber(contact: Contact?): String {
+        if (contact == null || contact.customerNumber <= 0) {
+            return ""
+        }
+        return contact.customerNumber.toString()
     }
 }

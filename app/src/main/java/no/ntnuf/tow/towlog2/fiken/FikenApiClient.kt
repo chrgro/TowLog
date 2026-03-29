@@ -1,9 +1,8 @@
 package no.ntnuf.tow.towlog2.fiken
 
 import android.content.SharedPreferences
-import android.util.Base64
 import no.ntnuf.tow.towlog2.model.Contact
-import org.json.JSONObject
+import org.json.JSONArray
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -11,41 +10,51 @@ import java.net.URL
 class FikenApiClient(private val settings: SharedPreferences) {
 
     companion object {
-        private const val CONTACTS_REL = "https://fiken.no/api/v1/rel/contacts"
         private const val KEY_API_URL = "fiken_api_url"
-        private const val KEY_API_USERNAME = "fiken_api_username"
-        private const val KEY_API_PASSWORD = "fiken_api_password"
+        private const val KEY_API_BEARER = "fiken_api_bearer_key"
+        private const val PAGE_SIZE = 100
     }
 
     fun loadContacts(): Result<List<Contact>> {
         return runCatching {
-            val url = settings.getString(KEY_API_URL, "")?.trim().orEmpty()
-            val username = settings.getString(KEY_API_USERNAME, "")?.trim().orEmpty()
-            val password = settings.getString(KEY_API_PASSWORD, "")?.trim().orEmpty()
+            val baseUrl = settings.getString(KEY_API_URL, "")?.trim().orEmpty()
+            val bearerToken = settings.getString(KEY_API_BEARER, "")?.trim().orEmpty()
 
-            if (url.isBlank()) {
+            if (baseUrl.isBlank()) {
                 throw IllegalArgumentException("Fiken API URL is empty")
             }
-            if (username.isBlank() || password.isBlank()) {
-                throw IllegalArgumentException("Fiken API username or password is empty")
+            if (bearerToken.isBlank()) {
+                throw IllegalArgumentException("Fiken API bearer key is empty")
             }
 
-            val jsonResponse = fetchContactsJson(url, username, password)
-            parseContacts(jsonResponse)
+            val contacts = ArrayList<Contact>()
+            var page = 0
+
+            while (true) {
+                val pagedUrl = buildContactsUrl(baseUrl, page)
+                val jsonResponse = fetchContactsJson(pagedUrl, bearerToken)
+                val pageContacts = parseContacts(jsonResponse)
+
+                if (pageContacts.isEmpty()) {
+                    break
+                }
+
+                contacts.addAll(pageContacts)
+                page += 1
+            }
+
+            contacts
         }
     }
 
-    private fun fetchContactsJson(url: String, username: String, password: String): String {
+    private fun fetchContactsJson(url: String, bearerToken: String): String {
         val connection = (URL(url).openConnection() as HttpURLConnection)
         try {
             connection.requestMethod = "GET"
             connection.connectTimeout = 15000
             connection.readTimeout = 15000
             connection.setRequestProperty("Accept", "application/json")
-
-            val authValue = "$username:$password"
-            val encodedAuth = Base64.encodeToString(authValue.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-            connection.setRequestProperty("Authorization", "Basic $encodedAuth")
+            connection.setRequestProperty("Authorization", "Bearer $bearerToken")
 
             val responseCode = connection.responseCode
             val stream = if (responseCode in 200..299) {
@@ -66,14 +75,39 @@ class FikenApiClient(private val settings: SharedPreferences) {
         }
     }
 
+    private fun buildContactsUrl(baseUrl: String, page: Int): String {
+        val split = baseUrl.split("?", limit = 2)
+        val endpoint = split[0]
+        val existingQuery = split.getOrNull(1).orEmpty()
+
+        val retainedParams = existingQuery
+            .split("&")
+            .filter { it.isNotBlank() }
+            .filterNot {
+                it.startsWith("customer=") ||
+                        it.startsWith("page=") ||
+                        it.startsWith("pageSize=")
+            }
+
+        val params = ArrayList<String>()
+        params.addAll(retainedParams)
+        params.add("customer=true")
+        params.add("pageSize=$PAGE_SIZE")
+        params.add("page=$page")
+
+        return "$endpoint?${params.joinToString("&")}"
+    }
+
     private fun parseContacts(json: String): List<Contact> {
-        val root = JSONObject(json)
-        val embedded = root.getJSONObject("_embedded")
-        val jsonContacts = embedded.getJSONArray(CONTACTS_REL)
+        val jsonContacts = JSONArray(json)
 
         val contacts = ArrayList<Contact>()
         for (i in 0 until jsonContacts.length()) {
             val entry = jsonContacts.getJSONObject(i)
+            if (!entry.optBoolean("customer", false)) {
+                continue
+            }
+
             val name = entry.optString("name", "").trim()
             if (name.isBlank()) {
                 continue
@@ -84,6 +118,7 @@ class FikenApiClient(private val settings: SharedPreferences) {
                 ?.optJSONObject("self")
                 ?.optString("href")
                 ?.takeIf { it.isNotBlank() }
+                ?: entry.opt("contactId")?.toString()
 
             val email = entry.optString("email", "").trim().ifBlank { null }
 
