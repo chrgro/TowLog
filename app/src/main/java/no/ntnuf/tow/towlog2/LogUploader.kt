@@ -72,9 +72,9 @@ class LogUploader(
 
             Log.e("LOGUPLOADER", "Uploaded ${completed.size} pending day logs to webserver")
             val message = if (completed.isNotEmpty()) {
-                "Uploaded ${completed.size} pending day logs to webserver"
+                "Uploaded ${completed.size} pending day logs to webserver. Remember to also send via email."
             } else {
-                "No internet connection, will upload day log later"
+                "No internet connection, will upload day log later. Remember to also send via email."
             }
 
             Handler(Looper.getMainLooper()).post {
