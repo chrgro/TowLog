@@ -170,6 +170,11 @@ class DayOverviewActivity : AppCompatActivity() {
         // Alert dialog for fiken contact loading
         loadfikencontactsdialog = getLoadFikenContactsAlertDialog()
 
+        // For newly created logs, pre-load contacts so autocomplete is ready immediately.
+        if (action == "new" && isFikenContactLoadingEnabled()) {
+            loadFikenContactsFromMenu()
+        }
+
         // Keep legacy behavior: ignore physical/gesture back in this screen.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
