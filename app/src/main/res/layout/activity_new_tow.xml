@@ -143,14 +143,18 @@
 
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/startTowButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="@color/white" />
+        android:background="@drawable/rounded_button_confirm"
+        android:padding="10dp"
+        android:text="Ready to tow"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/duringtowing_textsize_button" />
 
 </RelativeLayout>

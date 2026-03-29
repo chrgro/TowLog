@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Button
 import android.widget.RelativeLayout
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -26,7 +27,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,7 +57,7 @@ class DayOverviewActivity : AppCompatActivity() {
     private lateinit var tableLayout: TableLayout
     private lateinit var toolbar: Toolbar
     private lateinit var loadfikencontactsdialog: AlertDialog
-    private lateinit var floatingactionbutton: FloatingActionButton
+    private lateinit var floatingactionbutton: Button
 
     private val dayLogFileName = "daylog_"
     private val fikenErrorBodyMaxChars = 2000

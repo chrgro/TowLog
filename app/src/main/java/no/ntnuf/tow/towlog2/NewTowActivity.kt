@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +23,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import no.ntnuf.tow.towlog2.model.Contact
 import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.model.RegistrationList
@@ -173,7 +173,7 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         }
 
         // Set up button for starting tow
-        val fab: FloatingActionButton = findViewById(R.id.startTowButton)
+        val fab: Button = findViewById(R.id.startTowButton)
         applyImeAwareMarginsToBottomEnd(fab)
         fab.setOnClickListener {
             // Save any interesting data
