@@ -4,6 +4,7 @@ import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Date
+import java.util.Locale
 
 data class DayLog(
     val towpilot: Contact,
@@ -34,47 +35,60 @@ data class DayLog(
         )
     }
 
-    // Format the daylog to CSV
+    // Format the daylog as an email-friendly plain text report.
     fun getCsvOutput(): String {
-        val outdf = SimpleDateFormat("yyyy-MM-dd")
-        val time = SimpleDateFormat("HH:mm")
+        val norwegianLocale = Locale("no", "NO")
+        val outdf = SimpleDateFormat("EEEE yyyy-MM-dd", norwegianLocale)
+        val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+        val report = StringBuilder()
 
-        var ret = "Towing log: \n\n\n"
+        report.appendLine("Tow Log")
+        report.appendLine("=======")
+        report.appendLine()
+        report.appendLine(outdf.format(date).lowercase(norwegianLocale))
+        report.appendLine("-------")
+        report.appendLine()
 
-        ret += "towpilot, ${towpilot.name}\n"
-        ret += "towpilotCustomerNumber, ${formatCustomerNumber(towpilot)}\n"
-        ret += "towplane, $towplane\n"
-        ret += "date, ${outdf.format(date)}\n\n"
+        report.appendLine("Tow Pilot:")
+        report.appendLine("  ${towpilot.name}")
+        report.appendLine()
 
-        ret += "tow#, registration, pilot (billing), pilotCustomerNumber, copilot, copilotCustomerNumber, height, timeOfTow, notes \n\n"
+        report.appendLine("Tow Plane:")
+        report.appendLine("  $towplane")
+        report.appendLine()
 
-        var i = 1
-        for (tow in tows) {
-            ret += "#${i}, "
-            ret += "${tow.registration}, "
-            ret += "${tow.pilot.name}, "
-            ret += "${formatCustomerNumber(tow.pilot)}, "
+        report.appendLine("Tows")
+        report.appendLine("-------")
+        report.appendLine()
 
+        if (tows.isEmpty()) {
+            report.appendLine("No tows logged.")
+        }
+
+        for ((index, tow) in tows.withIndex()) {
+            report.appendLine("${index + 1}. ${tow.registration}")
+
+            val crewLine = StringBuilder()
+            crewLine.append(formatContactWithRoleAndAccount(tow.pilot, "billing"))
             if (tow.copilot != null) {
-                ret += tow.copilot.name
+                crewLine.append(", ")
+                crewLine.append(formatContactWithRoleAndAccount(tow.copilot, "copilot"))
             }
-            ret += ", "
-            ret += "${formatCustomerNumber(tow.copilot)}, "
+            report.appendLine("   $crewLine")
 
-            ret += "${tow.height}m, "
-            ret += "${time.format(tow.towStarted)}, "
-            ret += "${tow.notes}, "
+            report.appendLine("   Height ${tow.height}m, Tow Takeoff Time ${time.format(tow.towStarted)}")
 
-            ret += "\n"
-            i++
+            if (tow.notes.isNotBlank()) {
+                report.appendLine("   Notes: ${tow.notes}")
+            }
         }
 
         if (logHasBeenSent) {
-            ret += "\n"
-            ret += "note, Log previously sent $logSentNumberOfTimes time${if (logSentNumberOfTimes > 1) "s" else ""}."
+            report.appendLine()
+            report.appendLine("Note: Log previously sent $logSentNumberOfTimes time${if (logSentNumberOfTimes > 1) "s" else ""}.")
         }
 
-        return ret
+        return report.toString().trimEnd()
     }
 
     // Generate a JSON representation of the daylog
@@ -140,29 +154,13 @@ data class DayLog(
         return ret
     }
 
-    // Really really simple converter from CSV to HTML tables. Does not like quoted commas...
+    // Convert plain text output to a simple HTML document preserving line breaks.
     fun csv2Html(csv: String): String {
-        var ret = "<table>\n"
-
-        val lines = csv.split("\n")
-        for (line in lines) {
-            if (line.trim().isEmpty()) {
-                continue
-            }
-            ret += " <tr>\n"
-
-            val elements = line.split(",")
-
-            for (element in elements) {
-                ret += "  <td>"
-                ret += element.trim()
-                ret += "</td>\n"
-            }
-            ret += " </tr>\n"
-        }
-
-        ret += "</table>"
-        return ret
+        val escaped = csv
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        return "<html><body><pre>$escaped</pre></body></html>"
     }
 
     // Helper function to move entries up or down
@@ -198,5 +196,18 @@ data class DayLog(
             return ""
         }
         return contact.customerNumber.toString()
+    }
+
+    private fun formatContactWithRoleAndAccount(contact: Contact?, role: String): String {
+        if (contact == null) {
+            return ""
+        }
+
+        val customerNumber = formatCustomerNumber(contact)
+        if (customerNumber.isEmpty()) {
+            return "${contact.name} ($role)"
+        }
+
+        return "${contact.name} ($role, account $customerNumber)"
     }
 }
