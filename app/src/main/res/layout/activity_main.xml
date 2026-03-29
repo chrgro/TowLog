@@ -83,7 +83,14 @@
                     android:id="@+id/selectDateButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/main_selected_date" />
+                    android:background="@drawable/rounded_button_neutral"
+                    android:paddingStart="@dimen/main_action_button_padding_horizontal"
+                    android:paddingTop="@dimen/main_action_button_padding_vertical"
+                    android:paddingEnd="@dimen/main_action_button_padding_horizontal"
+                    android:paddingBottom="@dimen/main_action_button_padding_vertical"
+                    android:text="@string/main_selected_date"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/towPilotNameTitle"

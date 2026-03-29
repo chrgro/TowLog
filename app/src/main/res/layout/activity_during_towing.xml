@@ -35,7 +35,9 @@
             android:id="@+id/abortTowButton"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:backgroundTint="#FF0000" />
+            android:background="@drawable/rounded_button_abort"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
 
         <Button
             android:layout_width="wrap_content"
@@ -46,7 +48,9 @@
             android:id="@+id/confirmTowButton"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:backgroundTint="#00E600" />
+            android:background="@drawable/rounded_button_confirm"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -123,7 +127,9 @@
                 android:id="@+id/releaseButton"
                 android:layout_below="@+id/currentHeight"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="#E6E600" />
+                android:background="@drawable/rounded_button_release"
+                android:textAllCaps="false"
+                android:textColor="@color/textColorPrimary" />
 
             <Button
                 android:layout_width="55dp"
@@ -132,7 +138,9 @@
                 android:textSize="@dimen/duringtowing_textsize_button"
                 android:id="@+id/incHeightButton"
                 android:layout_alignBottom="@+id/infoTowText"
-                android:layout_alignParentRight="true" />
+                android:layout_alignParentRight="true"
+                android:background="@drawable/rounded_button_neutral"
+                android:textColor="@color/textColorPrimary" />
 
             <Button
                 android:layout_width="55dp"
@@ -141,7 +149,9 @@
                 android:textSize="@dimen/duringtowing_textsize_button"
                 android:id="@+id/decHeightButton"
                 android:layout_below="@+id/incHeightButton"
-                android:layout_alignParentRight="true" />
+                android:layout_alignParentRight="true"
+                android:background="@drawable/rounded_button_neutral"
+                android:textColor="@color/textColorPrimary" />
 
 
             <SeekBar
