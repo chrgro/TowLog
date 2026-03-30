@@ -7,7 +7,7 @@ data class ContactList(
 ) : Serializable {
 
     companion object {
-        private const val serialVersionUID = 2L
+        private const val serialVersionUID = 3L
     }
 
     fun clear() {

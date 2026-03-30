@@ -17,7 +17,7 @@ data class DayLog(
 ) : Serializable {
 
     companion object {
-        private const val serialVersionUID = 7L
+        private const val serialVersionUID = 8L
         private const val dayLogFileName = "daylog_"
     }
 

@@ -41,7 +41,7 @@ class LogUploader(
     ) : Serializable {
         companion object {
             @JvmField
-            val serialVersionUID = 1L
+            val serialVersionUID = 2L
         }
     }
 

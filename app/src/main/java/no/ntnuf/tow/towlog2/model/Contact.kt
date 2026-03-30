@@ -9,4 +9,9 @@ data class Contact(
     val customerNumber: Int = 0,
     val supplierNumber: Int = 0,
     val email: String? = null
-) : Serializable
+) : Serializable {
+
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}

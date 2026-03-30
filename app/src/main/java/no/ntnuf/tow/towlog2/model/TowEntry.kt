@@ -12,4 +12,9 @@ data class TowEntry(
     val notes: String = "",
     val gpx_filename: String? = null,
     val gpx_body: String? = null
-) : Serializable
+) : Serializable {
+
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
