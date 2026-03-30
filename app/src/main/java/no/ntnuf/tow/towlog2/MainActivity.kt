@@ -32,6 +32,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
@@ -102,6 +103,16 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateSelectedDate(viewModel.selectedDate.value)
 
         ensureLocationPermissionOnLaunch()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val defaultTowPlane = (PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("towplane_default_reg", "") ?: "")
+            .uppercase(Locale.ROOT)
+        towPlaneInput.setText(defaultTowPlane)
+        towPlaneInput.setSelection(defaultTowPlane.length)
+        viewModel.updateTowPlane(defaultTowPlane)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
