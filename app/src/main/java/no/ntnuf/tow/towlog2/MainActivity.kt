@@ -33,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
+import no.ntnuf.tow.towlog2.model.ContactListManager
 import no.ntnuf.tow.towlog2.viewmodel.TowingViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -165,14 +166,17 @@ class MainActivity : AppCompatActivity() {
         towPilotInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.updateTowPilotName(s?.toString().orEmpty())
+                viewModel.updateTowPilotName(ContactListManager.normalizeSuggestionLabel(s?.toString().orEmpty()))
             }
 
             override fun afterTextChanged(s: Editable?) = Unit
         })
 
         towPilotInput.setOnItemClickListener { _, _, _, _ ->
-            viewModel.updateTowPilotName(towPilotInput.text?.toString().orEmpty())
+            val normalized = ContactListManager.normalizeSuggestionLabel(towPilotInput.text?.toString().orEmpty())
+            towPilotInput.setText(normalized, false)
+            towPilotInput.setSelection(normalized.length)
+            viewModel.updateTowPilotName(normalized)
         }
 
         towPlaneInput.addTextChangedListener(object : TextWatcher {
@@ -240,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     viewModel.contacts.collect { contacts ->
                         contactAdapter.clear()
-                        contactAdapter.addAll(contacts.map { it.name })
+                        contactAdapter.addAll(contacts.map { ContactListManager.toSuggestionLabel(it.name, it.hasAccount) })
                         contactAdapter.notifyDataSetChanged()
                     }
                 }

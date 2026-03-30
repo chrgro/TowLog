@@ -52,6 +52,10 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var locationManager: LocationManager
 
+    private fun normalizedContactName(input: CharSequence?): String {
+        return ContactListManager.normalizeSuggestionLabel(input?.toString().orEmpty())
+    }
+
     private fun getDefaultNotesFromSettings(): List<String> {
         val defaultNotes = settings.getString("default_notes", "") ?: ""
         return defaultNotes
@@ -118,10 +122,15 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         // Set up main pilot name input
         pilotIn = findViewById(R.id.pilotNameIn)
         pilotCheckmark = findViewById(R.id.pilotNameCheckmark)
-        pilotIn.setAdapter(contactlistmanager.getContactNameListAdapter(this))
+        pilotIn.setAdapter(contactlistmanager.getContactSuggestionListAdapter(this))
+        pilotIn.setOnItemClickListener { _, _, _, _ ->
+            val normalized = normalizedContactName(pilotIn.text)
+            pilotIn.setText(normalized, false)
+            pilotIn.setSelection(normalized.length)
+        }
         pilotIn.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val selected = contactlistmanager.findContactFromName(s.toString())
+                val selected = contactlistmanager.findContactFromName(normalizedContactName(s))
                 selectedPilot = selected
                 if (selected == null) {
                     pilotCheckmark.setBackgroundResource(0)
@@ -139,10 +148,15 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         // Set up copilot name input
         copilotIn = findViewById(R.id.coPilotNameIn)
         copilotCheckmark = findViewById(R.id.copilotNameCheckmark)
-        copilotIn.setAdapter(contactlistmanager.getContactNameListAdapter(this))
+        copilotIn.setAdapter(contactlistmanager.getContactSuggestionListAdapter(this))
+        copilotIn.setOnItemClickListener { _, _, _, _ ->
+            val normalized = normalizedContactName(copilotIn.text)
+            copilotIn.setText(normalized, false)
+            copilotIn.setSelection(normalized.length)
+        }
         copilotIn.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val selected = contactlistmanager.findContactFromName(s.toString())
+                val selected = contactlistmanager.findContactFromName(normalizedContactName(s))
                 selectedCoPilot = selected
                 if (selected == null) {
                     copilotCheckmark.setBackgroundResource(0)
@@ -178,8 +192,8 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         fab.setOnClickListener {
             // Save any interesting data
             val reg = registrationIn.text.toString().trim()
-            val pilotname = pilotIn.text.toString().trim()
-            val copilotname = copilotIn.text.toString().trim()
+            val pilotname = normalizedContactName(pilotIn.text)
+            val copilotname = normalizedContactName(copilotIn.text)
 
             if (pilotname.isEmpty() || reg.isEmpty()) {
                 Toast.makeText(this@NewTowActivity, "You need a name and a registration", Toast.LENGTH_LONG).show()

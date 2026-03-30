@@ -10,6 +10,27 @@ class ContactListManager(private val context: Context) {
     private var contactList: ContactList = ContactList()
     private val filename = "contactlist.serialized"
 
+    companion object {
+        private const val ACCOUNT_CHECKMARK_SUFFIX = " \u2713"
+
+        fun toSuggestionLabel(contactName: String, hasAccount: Boolean): String {
+            return if (hasAccount) {
+                "$contactName$ACCOUNT_CHECKMARK_SUFFIX"
+            } else {
+                contactName
+            }
+        }
+
+        fun normalizeSuggestionLabel(value: String): String {
+            val trimmed = value.trim()
+            return if (trimmed.endsWith(ACCOUNT_CHECKMARK_SUFFIX)) {
+                trimmed.removeSuffix(ACCOUNT_CHECKMARK_SUFFIX).trimEnd()
+            } else {
+                trimmed
+            }
+        }
+    }
+
     init {
         loadContacts()
     }
@@ -37,6 +58,11 @@ class ContactListManager(private val context: Context) {
     fun getContactNameListAdapter(context: Context): ArrayAdapter<String> {
         val names = contactList.contacts.map { it.name }
         return ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
+    }
+
+    fun getContactSuggestionListAdapter(context: Context): ArrayAdapter<String> {
+        val labels = contactList.contacts.map { toSuggestionLabel(it.name, it.hasAccount) }
+        return ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, labels)
     }
 
     fun clearList() {
