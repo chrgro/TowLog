@@ -189,6 +189,12 @@ class DayOverviewActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.e("DAYOVERVIEW", "onResume() called")
+        // Re-evaluate menu item visibility after returning from Settings.
+        invalidateOptionsMenu()
+    }
+
+    private fun updateFikenMenuVisibility(menu: Menu) {
+        menu.findItem(R.id.menu_loadfikencontacts).isVisible = isFikenContactLoadingEnabled()
     }
 
     // Add the menu
@@ -200,9 +206,14 @@ class DayOverviewActivity : AppCompatActivity() {
         menu.findItem(R.id.menu_reenablelog).isVisible = daylog?.logIsLocked == true
         menu.findItem(R.id.menu_editlog).isVisible = daylog?.logIsLocked != true
         menu.findItem(R.id.menu_deletedaylog).isVisible = daylog?.logIsLocked != true
-        menu.findItem(R.id.menu_loadfikencontacts).isVisible = isFikenContactLoadingEnabled()
+        updateFikenMenuVisibility(menu)
 
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        updateFikenMenuVisibility(menu)
+        return super.onPrepareOptionsMenu(menu)
     }
 
     // Handle clicks on the menu
