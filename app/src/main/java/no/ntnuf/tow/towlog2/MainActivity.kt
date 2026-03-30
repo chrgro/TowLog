@@ -375,7 +375,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun availableDayLogs(): List<AvailableDayLog> {
-        val files = filesDir.list()?.toList().orEmpty().sorted()
+        // With fixed-width yyyy_MM_dd suffixes, descending lexical order yields newest-first logs.
+        val files = filesDir.list()?.toList().orEmpty().sortedDescending()
         return files
             .filter { it.startsWith(dayLogFileNamePrefix) }
             .map { fileName ->
