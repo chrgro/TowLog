@@ -1,5 +1,7 @@
 package no.ntnuf.tow.towlog2.model
 
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.ArrayList
@@ -96,62 +98,38 @@ data class DayLog(
         val outdf = SimpleDateFormat("yyyy-MM-dd")
         val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 
-        var ret = "{ \n"
+        val towsJson = JSONArray()
+        tows.forEachIndexed { index, tow ->
+            val towJson = JSONObject()
+                .put("townum", index + 1)
+                .put("registration", tow.registration)
+                .put("pilot", tow.pilot.name)
+                .put("pilot_customer_number", tow.pilot.customerNumber)
+                .put("tow_started", time.format(tow.towStarted))
+                .put("notes", tow.notes)
+                .put("height", tow.height)
 
-        ret += "\"towpilot\": \"${towpilot.name}\",\n"
-        ret += "\"towpilot_customer_number\": ${towpilot.customerNumber},\n"
-        ret += "\"towplane\": \"$towplane\",\n"
-
-        ret += "\"date\": \"${outdf.format(date)}\",\n"
-
-        ret += "\"sent_times\": \"$logSentNumberOfTimes\",\n"
-
-        ret += "\"tows\": [\n"
-        var i = 1
-        var first = true
-        for (tow in tows) {
-            if (!first) {
-                ret += " ,\n"
+            tow.pilot.email?.let { towJson.put("pilot_email", it) }
+            tow.copilot?.let { copilot ->
+                towJson
+                    .put("copilot", copilot.name)
+                    .put("copilot_customer_number", copilot.customerNumber)
+                copilot.email?.let { towJson.put("copilot_email", it) }
             }
-            ret += " {\n"
-            ret += "  \"townum\": $i,\n"
+            tow.gpx_filename?.let { towJson.put("gpx_filename", it) }
 
-            ret += "  \"registration\": \"${tow.registration}\",\n"
-            ret += "  \"pilot\": \"${tow.pilot.name}\",\n"
-            ret += "  \"pilot_customer_number\": ${tow.pilot.customerNumber},\n"
-
-            if (tow.pilot.email != null) {
-                ret += "  \"pilot_email\": \"${tow.pilot.email}\",\n"
-            }
-
-            if (tow.copilot != null) {
-                ret += "  \"copilot\": \"${tow.copilot.name}\",\n"
-                ret += "  \"copilot_customer_number\": ${tow.copilot.customerNumber},\n"
-                if (tow.copilot.email != null) {
-                    ret += "  \"copilot_email\": \"${tow.copilot.email}\",\n"
-                }
-            }
-
-            ret += "  \"tow_started\": \"${time.format(tow.towStarted)}\",\n"
-            ret += "  \"notes\": \"${tow.notes}\",\n"
-
-            if (tow.gpx_filename != null) {
-                ret += "  \"gpx_filename\": \"${tow.gpx_filename}\",\n"
-            }
-
-            ret += "  \"height\": ${tow.height}\n"
-
-            ret += " }\n"
-
-            first = false
-            i++
+            towsJson.put(towJson)
         }
 
-        ret += "]\n"
+        val dayLogJson = JSONObject()
+            .put("towpilot", towpilot.name)
+            .put("towpilot_customer_number", towpilot.customerNumber)
+            .put("towplane", towplane)
+            .put("date", outdf.format(date))
+            .put("sent_times", logSentNumberOfTimes.toString())
+            .put("tows", towsJson)
 
-        ret += "}\n"
-
-        return ret
+        return dayLogJson.toString(2)
     }
 
     // Convert plain text output to a simple HTML document preserving line breaks.
