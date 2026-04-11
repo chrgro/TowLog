@@ -558,7 +558,7 @@ class DayOverviewActivity : AppCompatActivity() {
     }
 
     private fun isFikenContactLoadingEnabled(): Boolean {
-        return settings.getBoolean(fikenContactLoadingEnabledKey, true)
+        return settings.getBoolean(fikenContactLoadingEnabledKey, false)
     }
 
     // Return towentry from the started activity (only for tow activity results, type 0)
@@ -777,7 +777,7 @@ class DayOverviewActivity : AppCompatActivity() {
     // Load the day log from a file
     private fun loadDayLog(date: Date): Boolean {
         var loadedSuccessfully = false
-        val outdf = SimpleDateFormat("yyyy_MM_dd", Locale.getDefault())
+        val outdf = SimpleDateFormat("EEEE yyyy_MM_dd", Locale.getDefault())
         val daylogsuffix = outdf.format(date)
         val fullfilename = dayLogFileName + daylogsuffix
         try {

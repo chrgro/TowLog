@@ -23,7 +23,7 @@ class FikenApiClient(private val settings: SharedPreferences) {
 
     fun loadContacts(): Result<List<Contact>> {
         return runCatching {
-            val contactLoadingEnabled = settings.getBoolean(KEY_CONTACT_LOADING_ENABLED, true)
+            val contactLoadingEnabled = settings.getBoolean(KEY_CONTACT_LOADING_ENABLED, false)
             val baseUrl = settings.getString(KEY_API_URL, "")?.trim().orEmpty()
             val bearerToken = settings.getString(KEY_API_BEARER, "")?.trim().orEmpty()
 
