@@ -117,7 +117,7 @@ class DayOverviewActivity : AppCompatActivity() {
         // Tow pilot and plane are optional (only needed for new logs)
         val towpilot = bundle.getSerializable("towpilot") as Contact?
         val towplane = bundle.getSerializable("towplane") as String?
-        val outdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val outdf = SimpleDateFormat("EEEE yyyy-MM-dd", Locale.ENGLISH)
         val strdate = outdf.format(date)
 
         toolbar = findViewById(R.id.toolbardayoverview)
@@ -156,10 +156,7 @@ class DayOverviewActivity : AppCompatActivity() {
         floatingactionbutton = findViewById(R.id.fab)
         // Keep the FAB clear of transient system navigation/back controls.
         applySystemBarMarginsToBottomEnd(floatingactionbutton)
-        floatingactionbutton.setOnClickListener {
-            val intent = Intent(this@DayOverviewActivity, NewTowActivity::class.java)
-            startActivityForResult(intent, 1)
-        }
+        updateEditModeUi()
 
         // Add a connectivity listener, waiting for when we get internet connection back
         connectivityManager = getSystemService(ConnectivityManager::class.java)
@@ -202,10 +199,10 @@ class DayOverviewActivity : AppCompatActivity() {
         this.menu = menu
         menuInflater.inflate(R.menu.dayoverview_menu, menu)
 
-        floatingactionbutton.visibility = if (daylog?.logIsLocked == true) View.INVISIBLE else View.VISIBLE
         menu.findItem(R.id.menu_reenablelog).isVisible = daylog?.logIsLocked == true
         menu.findItem(R.id.menu_editlog).isVisible = daylog?.logIsLocked != true
         menu.findItem(R.id.menu_deletedaylog).isVisible = daylog?.logIsLocked != true
+        updateEditModeUi()
         updateFikenMenuVisibility(menu)
 
         return true
@@ -272,12 +269,7 @@ class DayOverviewActivity : AppCompatActivity() {
             // Edit the day log manually (move up down, delete)
             R.id.menu_editlog -> {
                 editMode = !editMode
-                val edit = menu?.findItem(R.id.menu_editlog)
-                if (editMode) {
-                    edit?.title = "Finish log editing"
-                } else {
-                    edit?.title = "Manually edit log"
-                }
+                updateEditModeUi()
                 refreshTowTable()
                 return true
             }
@@ -321,7 +313,7 @@ class DayOverviewActivity : AppCompatActivity() {
                 menu?.findItem(R.id.menu_reenablelog)?.isVisible = false
                 menu?.findItem(R.id.menu_editlog)?.isVisible = true
                 menu?.findItem(R.id.menu_deletedaylog)?.isVisible = true
-                floatingactionbutton.visibility = View.VISIBLE
+                updateEditModeUi()
                 return true
             }
 
@@ -439,6 +431,7 @@ class DayOverviewActivity : AppCompatActivity() {
 
             // Mark the log as sent, disable various menu options
             daylog = daylog?.setLogHasBeenSent()
+            editMode = false
             floatingactionbutton.visibility = View.INVISIBLE
             menu?.findItem(R.id.menu_reenablelog)?.isVisible = true
             menu?.findItem(R.id.menu_editlog)?.isVisible = false
@@ -448,6 +441,35 @@ class DayOverviewActivity : AppCompatActivity() {
             Log.e("EMAIL", "Sending email ")
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    private fun updateEditModeUi() {
+        val isLocked = daylog?.logIsLocked == true
+        menu?.findItem(R.id.menu_editlog)?.title = getString(R.string.dayoverview_menu_edit_log)
+
+        if (isLocked) {
+            floatingactionbutton.visibility = View.INVISIBLE
+            return
+        }
+
+        floatingactionbutton.visibility = View.VISIBLE
+
+        if (editMode) {
+            floatingactionbutton.text = getString(R.string.dayoverview_finish_log_edit)
+            floatingactionbutton.setBackgroundResource(R.drawable.main_button_primary_rounded)
+            floatingactionbutton.setOnClickListener {
+                editMode = false
+                updateEditModeUi()
+                refreshTowTable()
+            }
+        } else {
+            floatingactionbutton.text = getString(R.string.dayoverview_new_tow)
+            floatingactionbutton.setBackgroundResource(R.drawable.rounded_button_confirm)
+            floatingactionbutton.setOnClickListener {
+                val intent = Intent(this@DayOverviewActivity, NewTowActivity::class.java)
+                startActivityForResult(intent, 1)
+            }
         }
     }
 

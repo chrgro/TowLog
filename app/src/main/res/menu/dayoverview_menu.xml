@@ -10,7 +10,7 @@
         android:title="---" />
 
     <item android:id="@+id/menu_editlog"
-        android:title="Manually edit log" />
+        android:title="@string/dayoverview_menu_edit_log" />
 
     <item android:id="@+id/menu_deletedaylog"
         android:title="Delete this log" />

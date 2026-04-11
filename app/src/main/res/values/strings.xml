@@ -42,6 +42,10 @@
     <string name="main_tow_plane_hint">Enter tow plane registration</string>
     <string name="main_tow_pilot_status_icon_description">Tow pilot status</string>
 
+    <string name="dayoverview_menu_edit_log">Edit log</string>
+    <string name="dayoverview_new_tow">New tow</string>
+    <string name="dayoverview_finish_log_edit">Finish log edit</string>
+
     <string name="pref_default_towplane_reg">LN-</string>
     <string name="pref_default_glider_reg">LN-G</string>
     <string name="pref_default_notes">Instruktøropplæring,Introkurs</string>

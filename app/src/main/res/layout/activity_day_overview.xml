@@ -140,7 +140,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:background="@drawable/rounded_button_confirm"
         android:padding="10dp"
-        android:text="New tow"
+        android:text="@string/dayoverview_new_tow"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="@dimen/duringtowing_textsize_button" />
