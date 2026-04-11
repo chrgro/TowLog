@@ -96,6 +96,7 @@ class FikenApiClient(private val settings: SharedPreferences) {
             .filter { it.isNotBlank() }
             .filterNot {
                 it.startsWith("customer=") ||
+                        it.startsWith("inactive=") ||
                         it.startsWith("page=") ||
                         it.startsWith("pageSize=")
             }
@@ -103,6 +104,8 @@ class FikenApiClient(private val settings: SharedPreferences) {
         val params = ArrayList<String>()
         params.addAll(retainedParams)
         params.add("customer=true")
+        // Fiken contacts use the `inactive` filter, where false means active contacts.
+        params.add("inactive=false")
         params.add("pageSize=$PAGE_SIZE")
         params.add("page=$page")
 
@@ -116,6 +119,9 @@ class FikenApiClient(private val settings: SharedPreferences) {
         for (i in 0 until jsonContacts.length()) {
             val entry = jsonContacts.getJSONObject(i)
             if (!entry.optBoolean("customer", false)) {
+                continue
+            }
+            if (entry.optBoolean("inactive", false)) {
                 continue
             }
 
@@ -148,4 +154,3 @@ class FikenApiClient(private val settings: SharedPreferences) {
         return contacts
     }
 }
-

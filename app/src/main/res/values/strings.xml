@@ -22,7 +22,7 @@
     <string name="location_permission_ok">OK</string>
 
     <string name="fiken_contact_loading_enabled_title">Enable Fiken contact loading</string>
-    <string name="fiken_contact_loading_enabled_summary">Allow loading contacts from the configured Fiken API URL.</string>
+    <string name="fiken_contact_loading_enabled_summary">Allow loading contacts from the configured Fiken API URL. Only contacts of type Customer and that are Active are loaded. </string>
     <string name="fiken_contact_loading_disabled_message">Fiken contact loading is disabled in settings.</string>
 
     <string name="main_prepare_towing_title">Prepare Towing</string>
