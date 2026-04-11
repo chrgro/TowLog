@@ -5,7 +5,7 @@
 
         <EditTextPreference
             android:capitalize="words"
-            android:defaultValue="LN-"
+            android:defaultValue="@string/pref_default_towplane_reg"
             android:inputType="textCapCharacters"
             android:key="towplane_default_reg"
             android:maxLines="1"
@@ -16,7 +16,7 @@
 
         <EditTextPreference
             android:capitalize="words"
-            android:defaultValue="LN-G"
+            android:defaultValue="@string/pref_default_glider_reg"
             android:inputType="textCapCharacters"
             android:key="glider_default_reg"
             android:maxLines="1"
@@ -88,7 +88,7 @@
             android:inputType="text"
             android:key="default_notes"
             android:maxLines="1"
-            android:defaultValue="Instruktøropplæring,Introkurs"
+            android:defaultValue="@string/pref_default_notes"
             android:singleLine="true"
             android:title="Default notes avavailable"
             android:summary="Comma-separated list of default notes available." />

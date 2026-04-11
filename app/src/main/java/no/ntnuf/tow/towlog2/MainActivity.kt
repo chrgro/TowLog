@@ -107,8 +107,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val fallbackTowPlane = getString(R.string.pref_default_towplane_reg)
         val defaultTowPlane = (PreferenceManager.getDefaultSharedPreferences(this)
-            .getString("towplane_default_reg", "") ?: "")
+            .getString("towplane_default_reg", fallbackTowPlane) ?: fallbackTowPlane)
             .uppercase(Locale.ROOT)
         towPlaneInput.setText(defaultTowPlane)
         towPlaneInput.setSelection(defaultTowPlane.length)

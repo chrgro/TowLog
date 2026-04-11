@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import no.ntnuf.tow.towlog2.R
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient
 import no.ntnuf.tow.towlog2.fiken.FikenApiClient.FikenApiException
 import no.ntnuf.tow.towlog2.model.Contact
@@ -99,7 +100,8 @@ class TowingViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun loadDefaultTowPlane() {
-        _towPlane.value = (settings.getString("towplane_default_reg", "") ?: "")
+        val fallbackTowPlane = getApplication<Application>().getString(R.string.pref_default_towplane_reg)
+        _towPlane.value = (settings.getString("towplane_default_reg", fallbackTowPlane) ?: fallbackTowPlane)
             .uppercase(Locale.ROOT)
     }
 

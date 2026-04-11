@@ -33,6 +33,10 @@ import kotlin.math.max
 @Suppress("DEPRECATION")
 class NewTowActivity : AppCompatActivity(), LocationListener {
 
+    private val defaultNotesKey = "default_notes"
+    private val gliderDefaultRegKey = "glider_default_reg"
+    private val notesSeparators = Regex("[,;\\n]+")
+
     private lateinit var pilotIn: AutoCompleteTextView
     private lateinit var copilotIn: AutoCompleteTextView
     private lateinit var registrationIn: AutoCompleteTextView
@@ -57,9 +61,9 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun getDefaultNotesFromSettings(): List<String> {
-        val defaultNotes = settings.getString("default_notes", "") ?: ""
+        val defaultNotes = settings.getString(defaultNotesKey, getString(R.string.pref_default_notes)).orEmpty()
         return defaultNotes
-            .split(",")
+            .split(notesSeparators)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .distinct()
@@ -175,7 +179,9 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
         registrationIn = findViewById(R.id.gliderRegistrationIn)
         registrationIn.setAdapter(registrationlist.getRegistrationListAdapter(this))
         registrationIn.setSelection(registrationIn.text.length)
-        registrationIn.setText(settings.getString("glider_default_reg", ""))
+        registrationIn.setText(
+            settings.getString(gliderDefaultRegKey, getString(R.string.pref_default_glider_reg))
+        )
 
         // Set up notes input
         notesIn = findViewById(R.id.notesIn)
@@ -184,6 +190,9 @@ class NewTowActivity : AppCompatActivity(), LocationListener {
             if (hasFocus) {
                 notesIn.showDropDown()
             }
+        }
+        notesIn.setOnClickListener {
+            notesIn.showDropDown()
         }
 
         // Set up button for starting tow
