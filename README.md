@@ -4,7 +4,7 @@ Slepelogg-app.
 Utviklet for NTNU Flyklubb
 
 # Brukerveiledning
-<img class="alignright" src="http://www.grovdaltech.com/towlog/towloglogo.png" width="97" height="97" />Dette er en brukerguide til slepelogg appen Tow Log. Appen er laget for slepepiloter til bruk i slepefly, der man kan logge hvert slep med seilflyinfo, navn på seilflypilot, slepehøyder osv. Den kan bruke GPS til å bedømme høyden, eller man kan justere høyden selv.
+<img class="alignright" src="http://www.grovdaltech.com/towlog/towloglogo.png" width="97" height="97" />Dette er en brukerguide til slepelogg appen TowLog. Appen er laget for slepepiloter til bruk i slepefly, der man kan logge hvert slep med seilflyinfo, navn på seilflypilot, slepehøyder osv. Den kan bruke GPS til å bedømme høyden, eller man kan justere høyden selv.
 
 Appen kjører på en telefon eller tablet av Android 7.0 eller nyere. Klubben har en egen tablet med 12V lader som kan brukes i YRX.
 

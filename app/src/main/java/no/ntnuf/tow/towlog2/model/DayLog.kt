@@ -44,7 +44,7 @@ data class DayLog(
         val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
         val report = StringBuilder()
 
-        report.appendLine("Tow Log")
+        report.appendLine("TowLog")
         report.appendLine("=======")
         report.appendLine()
         report.appendLine(outdf.format(date).lowercase(norwegianLocale))

@@ -121,7 +121,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val strdate = outdf.format(date)
 
         toolbar = findViewById(R.id.toolbardayoverview)
-        val toolbartitle = "Tow Log  -  $strdate"
+        val toolbartitle = "TowLog  -  $strdate"
         toolbar.title = toolbartitle
         setSupportActionBar(toolbar)
 
@@ -396,7 +396,7 @@ class DayOverviewActivity : AppCompatActivity() {
             val emailintent = Intent(Intent.ACTION_SEND)
             emailintent.type = "text/plain"
             emailintent.putExtra(Intent.EXTRA_EMAIL, arrayOf(receiver_email))
-            emailintent.putExtra(Intent.EXTRA_SUBJECT, "Tow Log for $dstr")
+            emailintent.putExtra(Intent.EXTRA_SUBJECT, "TowLog for $dstr")
             emailintent.putExtra(Intent.EXTRA_STREAM, attachmentUri)
             emailintent.putExtra(Intent.EXTRA_TEXT, currentDaylog.getCsvOutput())
             emailintent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

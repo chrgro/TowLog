@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Tow Log"
+rootProject.name = "TowLog"
 include(":app")
