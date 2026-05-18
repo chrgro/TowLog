@@ -53,8 +53,10 @@ class LogUploader(
 
     fun uploadPending() {
         thread(name = "towlog-upload-pending") {
+            if (pendingUploads.pendingFiles.isEmpty()) {
+                return@thread
+            }
             val completed = ArrayList<Int>()
-
             for ((index, pendingFileName) in pendingUploads.pendingFiles.withIndex()) {
                 val daylogToUpload = loadDayLogFromFile(pendingFileName)
                 if (daylogToUpload != null) {
