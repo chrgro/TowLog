@@ -799,7 +799,7 @@ class DayOverviewActivity : AppCompatActivity() {
     // Load the day log from a file
     private fun loadDayLog(date: Date): Boolean {
         var loadedSuccessfully = false
-        val outdf = SimpleDateFormat("EEEE yyyy_MM_dd", Locale.getDefault())
+        val outdf = SimpleDateFormat("yyyy_MM_dd")
         val daylogsuffix = outdf.format(date)
         val fullfilename = dayLogFileName + daylogsuffix
         try {
