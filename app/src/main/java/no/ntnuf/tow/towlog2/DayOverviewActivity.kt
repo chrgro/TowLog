@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -371,6 +372,7 @@ class DayOverviewActivity : AppCompatActivity() {
         val dFile = dfFile.format(currentDaylog.date)
 
         val towlogfilename = "towlog_" + dFile + ".html"
+        val towlogjsonfilename = "towlog_" + dFile + ".json"
         val receiver_email = settings.getString("send_log_email", "")
 
         try {
@@ -384,20 +386,33 @@ class DayOverviewActivity : AppCompatActivity() {
             fios.write(htmlContent.toByteArray())
             fios.close()
 
-            // Then add that HTML file as an attachment to the email
-            val file = towlogfile //getFileStreamPath(towlogfilename);
-            val attachmentUri = FileProvider.getUriForFile(
+            // Write the JSON version of the log to a file
+            val towlogjsonfile = File(dir, towlogjsonfilename)
+            towlogjsonfile.createNewFile()
+            val fiosJson = FileOutputStream(towlogjsonfile)
+            val jsonContent = currentDaylog.getJSONOutput()
+            fiosJson.write(jsonContent.toByteArray())
+            fiosJson.close()
+
+            // Then add those files as attachments to the email
+            val attachmentUris = ArrayList<Uri>()
+            attachmentUris.add(FileProvider.getUriForFile(
                 this,
                 "$packageName.fileprovider",
-                file
-            )
+                towlogfile
+            ))
+            attachmentUris.add(FileProvider.getUriForFile(
+                this,
+                "$packageName.fileprovider",
+                towlogjsonfile
+            ))
 
             // Also add the CSV version to the email directly
-            val emailintent = Intent(Intent.ACTION_SEND)
-            emailintent.type = "text/plain"
+            val emailintent = Intent(Intent.ACTION_SEND_MULTIPLE)
+            emailintent.type = "message/rfc822"
             emailintent.putExtra(Intent.EXTRA_EMAIL, arrayOf(receiver_email))
             emailintent.putExtra(Intent.EXTRA_SUBJECT, "TowLog for $dstr")
-            emailintent.putExtra(Intent.EXTRA_STREAM, attachmentUri)
+            emailintent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachmentUris)
             emailintent.putExtra(Intent.EXTRA_TEXT, currentDaylog.getCsvOutput())
             emailintent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
